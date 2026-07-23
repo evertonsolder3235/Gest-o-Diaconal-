@@ -1,0 +1,26 @@
+{
+  "short_name": "Gestão Diaconal",
+  "name": "Gestão Diaconal - Sistema Ministerial de Igreja",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0f172a",
+  "theme_color": "#1e293b",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "description": "Aplicativo PWA para gestão ministerial de diaconia, obreiros, visitantes, orações e finanças da igreja.",
+  "categories": ["productivity", "utilities", "lifestyle"],
+  "lang": "pt-BR"
+}

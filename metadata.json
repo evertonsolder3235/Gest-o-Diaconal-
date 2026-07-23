@@ -1,0 +1,6 @@
+{
+  "name": "Gestão Diaconal",
+  "description": "Aplicativo PWA para gestão diaconal e ministerial de igreja: visitantes, aniversariantes, obreiros, pedidos de oração, avisos e módulo financeiro.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
