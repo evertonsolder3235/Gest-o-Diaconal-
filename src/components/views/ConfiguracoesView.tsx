@@ -14,7 +14,9 @@ import {
   User as UserIcon,
   HardDrive,
   Copy,
-  Info
+  Info,
+  Package,
+  ExternalLink
 } from 'lucide-react';
 
 export const ConfiguracoesView: React.FC = () => {
@@ -92,7 +94,7 @@ export const ConfiguracoesView: React.FC = () => {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2.5">
             <Smartphone className="w-5 h-5 text-blue-400" />
-            <h3 className="font-bold text-slate-100 text-sm">Aplicativo PWA Instalável</h3>
+            <h3 className="font-bold text-slate-100 text-sm">Aplicativo PWA & APK Nativo (Android / iOS)</h3>
           </div>
 
           <span
@@ -102,12 +104,12 @@ export const ConfiguracoesView: React.FC = () => {
                 : 'bg-blue-950 text-blue-300 border border-blue-800'
             }`}
           >
-            {isStandalone ? '✓ Executando em Modo App' : 'Navegador Web / PWA Próximo'}
+            {isStandalone ? '✓ Executando em Modo App' : 'Navegador Web / PWA Instalável'}
           </span>
         </div>
 
         <p className="text-xs text-slate-300 leading-relaxed mb-4">
-          O <strong>Gestão Diaconal</strong> pode ser instalado no seu celular, tablet ou computador como um aplicativo nativo, com carregamento ultrarrápido e funcionamento offline.
+          O <strong>Gestão Diaconal</strong> pode ser instalado diretamente no seu celular, tablet ou computador como um aplicativo PWA nativo ou convertido para um arquivo <strong>.APK Android</strong>.
         </p>
 
         {!isStandalone && (
@@ -120,29 +122,55 @@ export const ConfiguracoesView: React.FC = () => {
             </div>
             <button
               onClick={installPWA}
-              className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-lg shadow-blue-900/40 shrink-0 flex items-center gap-2"
+              className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-lg shadow-blue-900/40 shrink-0 flex items-center gap-2 cursor-pointer"
             >
               <Download className="w-4 h-4" />
-              <span>Instalar Agora</span>
+              <span>Instalar PWA Agora</span>
             </button>
           </div>
         )}
 
-        {/* Device installation tips */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-xs text-slate-300">
-          <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
-            <strong className="block text-slate-200 font-bold mb-1">Android (Chrome)</strong>
-            <span>Clique nos 3 pontos do navegador e selecione <em>"Adicionar à Tela Inicial"</em> ou <em>"Instalar aplicativo"</em>.</span>
+        {/* Device installation & APK generation tips */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-2 text-xs text-slate-300">
+          <div className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 flex flex-col justify-between">
+            <div>
+              <strong className="block text-slate-200 font-bold mb-1 flex items-center gap-1.5">
+                <Smartphone className="w-4 h-4 text-blue-400" />
+                <span>Android (Chrome)</span>
+              </strong>
+              <span className="text-[11px] text-slate-400">Clique nos 3 pontos do Chrome e selecione <em>"Adicionar à Tela Inicial"</em> ou <em>"Instalar aplicativo"</em>.</span>
+            </div>
           </div>
 
-          <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
-            <strong className="block text-slate-200 font-bold mb-1">iPhone / iPad (Safari)</strong>
-            <span>Toque no botão <em>Compartilhar</em> (ícone com seta) e escolha <em>"Adicionar à Tela de Início"</em>.</span>
+          <div className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 flex flex-col justify-between">
+            <div>
+              <strong className="block text-slate-200 font-bold mb-1 flex items-center gap-1.5">
+                <Smartphone className="w-4 h-4 text-indigo-400" />
+                <span>iPhone / iPad (Safari)</span>
+              </strong>
+              <span className="text-[11px] text-slate-400">Toque no botão <em>Compartilhar</em> no Safari e escolha <em>"Adicionar à Tela de Início"</em>.</span>
+            </div>
           </div>
 
-          <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
-            <strong className="block text-slate-200 font-bold mb-1">Computador (PC/Mac)</strong>
-            <span>Clique no ícone de instalação no canto da barra de endereço do Chrome ou Edge.</span>
+          <div className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 flex flex-col justify-between">
+            <div>
+              <strong className="block text-slate-200 font-bold mb-1 flex items-center gap-1.5">
+                <Package className="w-4 h-4 text-emerald-400" />
+                <span>Gerar APK Nativo</span>
+              </strong>
+              <span className="text-[11px] text-slate-400 mb-2 block">
+                Gere o arquivo <strong>.APK</strong> para Android via PWABuilder oficial:
+              </span>
+              <a
+                href="https://www.pwabuilder.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-400 hover:text-blue-300 underline"
+              >
+                <span>Acessar PWABuilder.com</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
           </div>
         </div>
       </div>
