@@ -1,6 +1,7 @@
 import React from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { Header } from './components/Header';
+import { InstallBanner } from './components/InstallBanner';
 import { BottomNav } from './components/BottomNav';
 import { ToastContainer } from './components/ToastContainer';
 import { ConfirmModal } from './components/ConfirmModal';
@@ -20,6 +21,9 @@ const MainLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 selection:bg-blue-600 selection:text-white">
+      {/* PWA Install Banner */}
+      <InstallBanner />
+
       {/* Top Header */}
       <Header />
 
