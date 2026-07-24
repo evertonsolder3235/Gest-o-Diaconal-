@@ -37,6 +37,7 @@ export const ObreirosView: React.FC = () => {
     addObreiro,
     updateObreiro,
     deleteObreiro,
+    deleteMultipleObreiros,
     askConfirmDelete,
     searchQuery,
     setSearchQuery,
@@ -44,6 +45,7 @@ export const ObreirosView: React.FC = () => {
   } = useApp();
 
   const [deptFilter, setDeptFilter] = useState<string>('todos');
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Obreiro | null>(null);
   const [viewingItem, setViewingItem] = useState<Obreiro | null>(null);
@@ -130,11 +132,44 @@ export const ObreirosView: React.FC = () => {
   };
 
   const handleDelete = (item: Obreiro) => {
-    askConfirmDelete(
-      'Excluir Cadastro de Obreiro',
-      `Deseja realmente excluir o cadastro de "${item.nomeCompleto}"? Esta informação será removida permanentemente.`,
-      () => deleteObreiro(item.id)
+    requestAdminAuth(() => {
+      askConfirmDelete(
+        'Excluir Cadastro de Obreiro',
+        `Deseja realmente excluir o cadastro de "${item.nomeCompleto}"? Esta informação será removida permanentemente.`,
+        () => deleteObreiro(item.id)
+      );
+    }, 'Excluir Obreiro');
+  };
+
+  const toggleSelectItem = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     );
+  };
+
+  const toggleSelectAll = () => {
+    if (filteredList.length === 0) return;
+    const filteredIds = filteredList.map((i) => i.id);
+    const isAllSelected = filteredIds.every((id) => selectedIds.includes(id));
+    if (isAllSelected) {
+      setSelectedIds((prev) => prev.filter((id) => !filteredIds.includes(id)));
+    } else {
+      setSelectedIds((prev) => Array.from(new Set([...prev, ...filteredIds])));
+    }
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedIds.length === 0) return;
+    requestAdminAuth(() => {
+      askConfirmDelete(
+        'Excluir Obreiros Selecionados',
+        `Deseja realmente excluir os ${selectedIds.length} obreiro(s) selecionados? Esta ação não poderá ser desfeita.`,
+        () => {
+          deleteMultipleObreiros(selectedIds);
+          setSelectedIds([]);
+        }
+      );
+    }, 'Excluir Obreiros');
   };
 
   const filteredList = obreiros.filter((item) => {
@@ -204,6 +239,41 @@ export const ObreirosView: React.FC = () => {
         </div>
       </div>
 
+      {/* Selection Toolbar */}
+      {filteredList.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-900/90 border border-slate-800 rounded-2xl px-4 py-3 text-xs">
+          <label className="flex items-center gap-2 cursor-pointer font-semibold text-slate-300 hover:text-slate-100 select-none">
+            <input
+              type="checkbox"
+              checked={
+                filteredList.length > 0 &&
+                filteredList.every((item) => selectedIds.includes(item.id))
+              }
+              onChange={toggleSelectAll}
+              className="w-4 h-4 rounded bg-slate-950 border-slate-700 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+            />
+            <span>
+              Selecionar todos ({filteredList.length})
+            </span>
+          </label>
+
+          {selectedIds.length > 0 && (
+            <div className="flex items-center gap-3">
+              <span className="text-slate-400 font-medium">
+                <strong className="text-emerald-400">{selectedIds.length}</strong> selecionado(s)
+              </span>
+              <button
+                onClick={handleDeleteSelected}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-600/90 hover:bg-rose-600 text-white font-bold transition-all shadow-md shadow-rose-950/30"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Excluir Selecionados ({selectedIds.length})</span>
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Obreiros List */}
       {filteredList.length === 0 ? (
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center">
@@ -215,22 +285,35 @@ export const ObreirosView: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredList.map((item) => (
-            <div
-              key={item.id}
-              className="bg-slate-900 border border-slate-800 rounded-2xl p-5 hover:border-emerald-500/40 transition-all shadow-md flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-start justify-between gap-2 mb-3">
-                  <div>
-                    <h3 className="font-extrabold text-slate-100 text-base leading-snug">
-                      {item.nomeCompleto}
-                    </h3>
-                    <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400 mt-0.5">
-                      <Briefcase className="w-3.5 h-3.5" />
-                      <span>{item.cargoMinistério || 'Diácono'}</span>
+          {filteredList.map((item) => {
+            const isSelected = selectedIds.includes(item.id);
+            return (
+              <div
+                key={item.id}
+                className={`bg-slate-900 border rounded-2xl p-5 transition-all shadow-md flex flex-col justify-between ${
+                  isSelected ? 'border-emerald-500 bg-emerald-950/20 shadow-emerald-950/20' : 'border-slate-800 hover:border-emerald-500/40'
+                }`}
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-2 mb-3">
+                    <div className="flex items-start gap-2.5">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleSelectItem(item.id)}
+                        className="mt-1 w-4 h-4 rounded bg-slate-950 border-slate-700 text-emerald-600 focus:ring-emerald-500 cursor-pointer shrink-0"
+                        title="Selecionar para exclusão"
+                      />
+                      <div>
+                        <h3 className="font-extrabold text-slate-100 text-base leading-snug">
+                          {item.nomeCompleto}
+                        </h3>
+                        <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400 mt-0.5">
+                          <Briefcase className="w-3.5 h-3.5" />
+                          <span>{item.cargoMinistério || 'Diácono'}</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
 
                   <span
                     className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
@@ -290,38 +373,39 @@ export const ObreirosView: React.FC = () => {
                 </div>
               </div>
             </div>
-          ))}
+          );
+        })}
         </div>
       )}
 
       {/* Detailed Profile Viewer Modal */}
       <AnimatePresence>
         {viewingItem && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-lg w-full shadow-2xl relative"
+              className="bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl p-5 sm:p-6 max-w-lg w-full shadow-2xl relative max-h-[90vh] flex flex-col my-auto"
             >
               <button
                 onClick={() => setViewingItem(null)}
-                className="absolute top-5 right-5 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"
+                className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors z-10"
               >
                 <X className="w-5 h-5" />
               </button>
 
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-extrabold text-xl">
+              <div className="flex items-center gap-3 mb-4 pr-8 shrink-0">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-extrabold text-xl shrink-0">
                   {viewingItem.nomeCompleto.charAt(0)}
                 </div>
-                <div>
-                  <h3 className="text-lg font-bold text-slate-100">{viewingItem.nomeCompleto}</h3>
+                <div className="min-w-0">
+                  <h3 className="text-lg font-bold text-slate-100 truncate">{viewingItem.nomeCompleto}</h3>
                   <p className="text-xs text-emerald-400 font-semibold">{viewingItem.cargoMinistério || 'Diácono'}</p>
                 </div>
               </div>
 
-              <div className="space-y-3 bg-slate-950 p-4 rounded-2xl border border-slate-800 text-xs text-slate-300">
+              <div className="flex-1 overflow-y-auto space-y-3 bg-slate-950 p-4 rounded-2xl border border-slate-800 text-xs text-slate-300">
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <span className="text-slate-500 font-semibold block text-[10px] uppercase">Departamento</span>
@@ -359,20 +443,20 @@ export const ObreirosView: React.FC = () => {
                 )}
               </div>
 
-              <div className="flex items-center justify-end gap-2 mt-5">
+              <div className="flex items-center justify-end gap-2 mt-4 shrink-0 pt-2 border-t border-slate-800/80">
                 <button
                   onClick={() => {
                     const item = viewingItem;
                     setViewingItem(null);
                     openEditModal(item);
                   }}
-                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-200 text-xs font-semibold hover:bg-slate-700"
+                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-200 text-xs font-semibold hover:bg-slate-700 transition-colors"
                 >
                   Editar Dados
                 </button>
                 <button
                   onClick={() => setViewingItem(null)}
-                  className="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold"
+                  className="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-500 transition-colors"
                 >
                   Fechar
                 </button>
@@ -385,28 +469,30 @@ export const ObreirosView: React.FC = () => {
       {/* Add / Edit Form Modal */}
       <AnimatePresence>
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-lg w-full shadow-2xl relative my-8"
+              className="bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl p-5 sm:p-6 max-w-lg w-full shadow-2xl relative max-h-[90vh] flex flex-col my-auto"
             >
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="absolute top-5 right-5 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"
+                className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors z-10"
               >
                 <X className="w-5 h-5" />
               </button>
 
-              <h3 className="text-lg font-bold text-slate-100 mb-1">
-                {editingItem ? 'Editar Ficha do Obreiro' : 'Cadastrar Novo Obreiro'}
-              </h3>
-              <p className="text-xs text-slate-400 mb-5">
-                Preencha todos os campos obrigatórios do obreiro/diácono.
-              </p>
+              <div className="shrink-0 mb-3 pr-8">
+                <h3 className="text-lg font-bold text-slate-100 mb-0.5">
+                  {editingItem ? 'Editar Ficha do Obreiro' : 'Cadastrar Novo Obreiro'}
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Preencha todos os campos obrigatórios do obreiro/diácono.
+                </p>
+              </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto pr-1 space-y-3 text-left">
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1">Nome Completo *</label>
                   <input

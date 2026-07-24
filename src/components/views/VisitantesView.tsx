@@ -25,6 +25,7 @@ export const VisitantesView: React.FC = () => {
     addVisitante,
     updateVisitante,
     deleteVisitante,
+    deleteMultipleVisitantes,
     askConfirmDelete,
     searchQuery,
     setSearchQuery,
@@ -32,6 +33,7 @@ export const VisitantesView: React.FC = () => {
   } = useApp();
 
   const [statusFilter, setStatusFilter] = useState<string>('todos');
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Visitante | null>(null);
 
@@ -99,6 +101,35 @@ export const VisitantesView: React.FC = () => {
       'Excluir Visitante',
       `Deseja realmente excluir o cadastro do visitante "${item.nome}"? Esta ação não poderá ser desfeita.`,
       () => deleteVisitante(item.id)
+    );
+  };
+
+  const toggleSelectItem = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (filteredList.length === 0) return;
+    const filteredIds = filteredList.map((i) => i.id);
+    const isAllSelected = filteredIds.every((id) => selectedIds.includes(id));
+    if (isAllSelected) {
+      setSelectedIds((prev) => prev.filter((id) => !filteredIds.includes(id)));
+    } else {
+      setSelectedIds((prev) => Array.from(new Set([...prev, ...filteredIds])));
+    }
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedIds.length === 0) return;
+    askConfirmDelete(
+      'Excluir Visitantes Selecionados',
+      `Deseja realmente excluir os ${selectedIds.length} visitante(s) selecionados? Esta ação não poderá ser desfeita.`,
+      () => {
+        deleteMultipleVisitantes(selectedIds);
+        setSelectedIds([]);
+      }
     );
   };
 
@@ -207,6 +238,41 @@ export const VisitantesView: React.FC = () => {
         </div>
       </div>
 
+      {/* Selection Toolbar */}
+      {filteredList.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-900/90 border border-slate-800 rounded-2xl px-4 py-3 text-xs">
+          <label className="flex items-center gap-2 cursor-pointer font-semibold text-slate-300 hover:text-slate-100 select-none">
+            <input
+              type="checkbox"
+              checked={
+                filteredList.length > 0 &&
+                filteredList.every((item) => selectedIds.includes(item.id))
+              }
+              onChange={toggleSelectAll}
+              className="w-4 h-4 rounded bg-slate-950 border-slate-700 text-blue-600 focus:ring-blue-500 cursor-pointer"
+            />
+            <span>
+              Selecionar todos ({filteredList.length})
+            </span>
+          </label>
+
+          {selectedIds.length > 0 && (
+            <div className="flex items-center gap-3">
+              <span className="text-slate-400 font-medium">
+                <strong className="text-blue-400">{selectedIds.length}</strong> selecionado(s)
+              </span>
+              <button
+                onClick={handleDeleteSelected}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-600/90 hover:bg-rose-600 text-white font-bold transition-all shadow-md shadow-rose-950/30"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Excluir Selecionados ({selectedIds.length})</span>
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Visitors Cards List */}
       {filteredList.length === 0 ? (
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center">
@@ -218,20 +284,33 @@ export const VisitantesView: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredList.map((item) => (
-            <div
-              key={item.id}
-              className="bg-slate-900 border border-slate-800 rounded-2xl p-5 hover:border-slate-700 transition-all shadow-md flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-start justify-between gap-2 mb-3">
-                  <div>
-                    <h3 className="font-extrabold text-slate-100 text-base leading-snug">{item.nome}</h3>
-                    <div className="flex items-center gap-1.5 text-xs text-slate-400 mt-0.5">
-                      <Calendar className="w-3.5 h-3.5 text-blue-400" />
-                      <span>Visitou em: {item.dataVisita}</span>
+          {filteredList.map((item) => {
+            const isSelected = selectedIds.includes(item.id);
+            return (
+              <div
+                key={item.id}
+                className={`bg-slate-900 border rounded-2xl p-5 transition-all shadow-md flex flex-col justify-between ${
+                  isSelected ? 'border-blue-500 bg-blue-950/20 shadow-blue-950/20' : 'border-slate-800 hover:border-slate-700'
+                }`}
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-2 mb-3">
+                    <div className="flex items-start gap-2.5">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleSelectItem(item.id)}
+                        className="mt-1 w-4 h-4 rounded bg-slate-950 border-slate-700 text-blue-600 focus:ring-blue-500 cursor-pointer shrink-0"
+                        title="Selecionar para exclusão"
+                      />
+                      <div>
+                        <h3 className="font-extrabold text-slate-100 text-base leading-snug">{item.nome}</h3>
+                        <div className="flex items-center gap-1.5 text-xs text-slate-400 mt-0.5">
+                          <Calendar className="w-3.5 h-3.5 text-blue-400" />
+                          <span>Visitou em: {item.dataVisita}</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
 
                   <span
                     className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold shrink-0 border ${
@@ -315,35 +394,38 @@ export const VisitantesView: React.FC = () => {
                 </div>
               </div>
             </div>
-          ))}
+          );
+        })}
         </div>
       )}
 
       {/* Add / Edit Modal */}
       <AnimatePresence>
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-lg w-full shadow-2xl relative my-8"
+              className="bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl p-5 sm:p-6 max-w-lg w-full shadow-2xl relative max-h-[90vh] flex flex-col my-auto"
             >
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="absolute top-5 right-5 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors"
+                className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors z-10"
               >
                 <X className="w-5 h-5" />
               </button>
 
-              <h3 className="text-lg font-bold text-slate-100 mb-1">
-                {editingItem ? 'Editar Visitante' : 'Cadastrar Novo Visitante'}
-              </h3>
-              <p className="text-xs text-slate-400 mb-5">
-                Preencha as informações do visitante para acompanhamento pastoral e diaconal.
-              </p>
+              <div className="shrink-0 mb-3 pr-8">
+                <h3 className="text-lg font-bold text-slate-100 mb-0.5">
+                  {editingItem ? 'Editar Visitante' : 'Cadastrar Novo Visitante'}
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Preencha as informações do visitante para acompanhamento pastoral e diaconal.
+                </p>
+              </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto pr-1 space-y-3 text-left">
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1">Nome Completo *</label>
                   <input
@@ -388,7 +470,7 @@ export const VisitantesView: React.FC = () => {
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-100 focus:outline-none focus:border-blue-500"
                   >
                     <option value="Novo">Novo (Primeira Visita)</option>
-                    <option value="Em Acompanhamento">Em Acompanhamento (Retornou/Célula)</option>
+                    <option value="Em Acompanhamento">Acompanhando ( Retornando a Casa )</option>
                     <option value="Integrado">Integrado (Membro/Frequente)</option>
                   </select>
                 </div>

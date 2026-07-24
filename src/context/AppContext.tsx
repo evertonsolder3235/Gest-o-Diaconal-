@@ -66,30 +66,35 @@ interface AppContextType {
   addVisitante: (data: Omit<Visitante, 'id'>) => void;
   updateVisitante: (id: string, data: Partial<Visitante>) => void;
   deleteVisitante: (id: string) => void;
+  deleteMultipleVisitantes: (ids: string[]) => void;
   
   // Aniversariantes
   aniversariantes: Aniversariante[];
   addAniversariante: (data: Omit<Aniversariante, 'id'>) => void;
   updateAniversariante: (id: string, data: Partial<Aniversariante>) => void;
   deleteAniversariante: (id: string) => void;
+  deleteMultipleAniversariantes: (ids: string[]) => void;
   
   // Obreiros
   obreiros: Obreiro[];
   addObreiro: (data: Omit<Obreiro, 'id'>) => void;
   updateObreiro: (id: string, data: Partial<Obreiro>) => void;
   deleteObreiro: (id: string) => void;
+  deleteMultipleObreiros: (ids: string[]) => void;
   
   // Pedidos de Oração
   pedidos: PedidoOracao[];
   addPedido: (data: Omit<PedidoOracao, 'id'>) => void;
   updatePedido: (id: string, data: Partial<PedidoOracao>) => void;
   deletePedido: (id: string) => void;
+  deleteMultiplePedidos: (ids: string[]) => void;
   
   // Avisos
   avisos: Aviso[];
   addAviso: (data: Omit<Aviso, 'id'>) => void;
   updateAviso: (id: string, data: Partial<Aviso>) => void;
   deleteAviso: (id: string) => void;
+  deleteMultipleAvisos: (ids: string[]) => void;
   toggleFixarAviso: (id: string) => void;
   
   // Financeiro
@@ -97,6 +102,7 @@ interface AppContextType {
   addContribuicao: (data: Omit<ContribuicaoFinanceira, 'id'>) => void;
   updateContribuicao: (id: string, data: Partial<ContribuicaoFinanceira>) => void;
   deleteContribuicao: (id: string) => void;
+  deleteMultipleContribuicoes: (ids: string[]) => void;
 
   // Escalas
   escalas: ItemEscala[];
@@ -435,6 +441,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     showToast('success', 'Registro excluído com sucesso.');
   };
 
+  const deleteMultipleVisitantes = (ids: string[]) => {
+    setVisitantes((prev) => prev.filter((item) => !ids.includes(item.id)));
+    showToast('success', `${ids.length} visitante(s) excluído(s) com sucesso.`);
+  };
+
   // Aniversariantes CRUD
   const addAniversariante = (data: Omit<Aniversariante, 'id'>) => {
     const newRecord: Aniversariante = {
@@ -456,6 +467,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const deleteAniversariante = (id: string) => {
     setAniversariantes((prev) => prev.filter((item) => item.id !== id));
     showToast('success', 'Registro excluído com sucesso.');
+  };
+
+  const deleteMultipleAniversariantes = (ids: string[]) => {
+    setAniversariantes((prev) => prev.filter((item) => !ids.includes(item.id)));
+    showToast('success', `${ids.length} comemoração(ões) excluída(s) com sucesso.`);
   };
 
   // Obreiros CRUD
@@ -481,6 +497,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     showToast('success', 'Obreiro excluído com sucesso.');
   };
 
+  const deleteMultipleObreiros = (ids: string[]) => {
+    setObreiros((prev) => prev.filter((item) => !ids.includes(item.id)));
+    showToast('success', `${ids.length} obreiro(s) excluído(s) com sucesso.`);
+  };
+
   // Pedidos de Oração CRUD
   const addPedido = (data: Omit<PedidoOracao, 'id'>) => {
     const newRecord: PedidoOracao = {
@@ -504,6 +525,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     showToast('success', 'Pedido de oração excluído com sucesso.');
   };
 
+  const deleteMultiplePedidos = (ids: string[]) => {
+    setPedidos((prev) => prev.filter((item) => !ids.includes(item.id)));
+    showToast('success', `${ids.length} pedido(s) excluído(s) com sucesso.`);
+  };
+
   // Avisos CRUD
   const addAviso = (data: Omit<Aviso, 'id'>) => {
     const newRecord: Aviso = {
@@ -525,6 +551,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const deleteAviso = (id: string) => {
     setAvisos((prev) => prev.filter((item) => item.id !== id));
     showToast('success', 'Aviso excluído com sucesso.');
+  };
+
+  const deleteMultipleAvisos = (ids: string[]) => {
+    setAvisos((prev) => prev.filter((item) => !ids.includes(item.id)));
+    showToast('success', `${ids.length} aviso(s) excluído(s) com sucesso.`);
   };
 
   const toggleFixarAviso = (id: string) => {
@@ -555,6 +586,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const deleteContribuicao = (id: string) => {
     setContribuicoes((prev) => prev.filter((item) => item.id !== id));
     showToast('success', 'Registro financeiro excluído com sucesso.');
+  };
+
+  const deleteMultipleContribuicoes = (ids: string[]) => {
+    setContribuicoes((prev) => prev.filter((item) => !ids.includes(item.id)));
+    showToast('success', `${ids.length} registro(s) financeiro(s) excluído(s) com sucesso.`);
   };
 
   // Escalas CRUD
@@ -671,27 +707,33 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         addVisitante,
         updateVisitante,
         deleteVisitante,
+        deleteMultipleVisitantes,
         aniversariantes,
         addAniversariante,
         updateAniversariante,
         deleteAniversariante,
+        deleteMultipleAniversariantes,
         obreiros,
         addObreiro,
         updateObreiro,
         deleteObreiro,
+        deleteMultipleObreiros,
         pedidos,
         addPedido,
         updatePedido,
         deletePedido,
+        deleteMultiplePedidos,
         avisos,
         addAviso,
         updateAviso,
         deleteAviso,
+        deleteMultipleAvisos,
         toggleFixarAviso,
         contribuicoes,
         addContribuicao,
         updateContribuicao,
         deleteContribuicao,
+        deleteMultipleContribuicoes,
         escalas,
         addEscalaItem,
         updateEscalaItem,

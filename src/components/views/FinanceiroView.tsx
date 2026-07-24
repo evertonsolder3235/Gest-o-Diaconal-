@@ -37,12 +37,14 @@ export const FinanceiroView: React.FC = () => {
     addContribuicao,
     updateContribuicao,
     deleteContribuicao,
+    deleteMultipleContribuicoes,
     askConfirmDelete,
     searchQuery,
     setSearchQuery,
     requestAdminAuth
   } = useApp();
 
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ContribuicaoFinanceira | null>(null);
   const [viewingProofItem, setViewingProofItem] = useState<ContribuicaoFinanceira | null>(null);
@@ -139,6 +141,37 @@ export const FinanceiroView: React.FC = () => {
     );
   };
 
+  const toggleSelectItem = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (filteredList.length === 0) return;
+    const filteredIds = filteredList.map((i) => i.id);
+    const isAllSelected = filteredIds.every((id) => selectedIds.includes(id));
+    if (isAllSelected) {
+      setSelectedIds((prev) => prev.filter((id) => !filteredIds.includes(id)));
+    } else {
+      setSelectedIds((prev) => Array.from(new Set([...prev, ...filteredIds])));
+    }
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedIds.length === 0) return;
+    requestAdminAuth(() => {
+      askConfirmDelete(
+        'Excluir Registros Selecionados',
+        `Deseja realmente excluir os ${selectedIds.length} registro(s) financeiro(s) selecionados? Esta ação não poderá ser desfeita.`,
+        () => {
+          deleteMultipleContribuicoes(selectedIds);
+          setSelectedIds([]);
+        }
+      );
+    }, 'Excluir Lançamentos Financeiros');
+  };
+
   // Calculations for Summary
   const totalGeral = contribuicoes.reduce((acc, c) => acc + c.valor, 0);
 
@@ -213,6 +246,41 @@ export const FinanceiroView: React.FC = () => {
         />
       </div>
 
+      {/* Selection Toolbar */}
+      {filteredList.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-900/90 border border-slate-800 rounded-2xl px-4 py-3 text-xs">
+          <label className="flex items-center gap-2 cursor-pointer font-semibold text-slate-300 hover:text-slate-100 select-none">
+            <input
+              type="checkbox"
+              checked={
+                filteredList.length > 0 &&
+                filteredList.every((item) => selectedIds.includes(item.id))
+              }
+              onChange={toggleSelectAll}
+              className="w-4 h-4 rounded bg-slate-950 border-slate-700 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+            />
+            <span>
+              Selecionar todos ({filteredList.length})
+            </span>
+          </label>
+
+          {selectedIds.length > 0 && (
+            <div className="flex items-center gap-3">
+              <span className="text-slate-400 font-medium">
+                <strong className="text-emerald-400">{selectedIds.length}</strong> selecionado(s)
+              </span>
+              <button
+                onClick={handleDeleteSelected}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-600/90 hover:bg-rose-600 text-white font-bold transition-all shadow-md shadow-rose-950/30"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Excluir Selecionados ({selectedIds.length})</span>
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Contributions List */}
       {filteredList.length === 0 ? (
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center">
@@ -224,19 +292,34 @@ export const FinanceiroView: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredList.map((item) => (
-            <div
-              key={item.id}
-              className="bg-slate-900 border border-slate-800 rounded-2xl p-5 hover:border-emerald-500/40 transition-all shadow-md flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-start justify-between gap-2 mb-3">
-                  <div>
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-950 text-emerald-300 border border-emerald-800 inline-block mb-1">
-                      {item.tipoContribuicao}
-                    </span>
-                    <h3 className="font-extrabold text-slate-100 text-base">{item.nomeContribuinte}</h3>
-                  </div>
+          {filteredList.map((item) => {
+            const isSelected = selectedIds.includes(item.id);
+            return (
+              <div
+                key={item.id}
+                className={`bg-slate-900 border rounded-2xl p-5 transition-all shadow-md flex flex-col justify-between ${
+                  isSelected
+                    ? 'border-emerald-500 bg-emerald-950/20 shadow-emerald-950/20'
+                    : 'border-slate-800 hover:border-emerald-500/40'
+                }`}
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-2 mb-3">
+                    <div className="flex items-start gap-2.5">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleSelectItem(item.id)}
+                        className="mt-1 w-4 h-4 rounded bg-slate-950 border-slate-700 text-emerald-600 focus:ring-emerald-500 cursor-pointer shrink-0"
+                        title="Selecionar para exclusão"
+                      />
+                      <div>
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-950 text-emerald-300 border border-emerald-800 inline-block mb-1">
+                          {item.tipoContribuicao}
+                        </span>
+                        <h3 className="font-extrabold text-slate-100 text-base">{item.nomeContribuinte}</h3>
+                      </div>
+                    </div>
 
                   <div className="text-right">
                     <span className="text-lg font-extrabold text-emerald-400 block tracking-tight">
@@ -292,7 +375,8 @@ export const FinanceiroView: React.FC = () => {
                 </button>
               </div>
             </div>
-          ))}
+          );
+        })}
         </div>
       )}
 

@@ -22,6 +22,7 @@ export const AniversariantesView: React.FC = () => {
     addAniversariante,
     updateAniversariante,
     deleteAniversariante,
+    deleteMultipleAniversariantes,
     askConfirmDelete,
     searchQuery,
     setSearchQuery,
@@ -29,6 +30,7 @@ export const AniversariantesView: React.FC = () => {
   } = useApp();
 
   const [tipoFilter, setTipoFilter] = useState<string>('todos');
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Aniversariante | null>(null);
 
@@ -91,6 +93,35 @@ export const AniversariantesView: React.FC = () => {
       'Excluir Comemoração',
       `Deseja realmente excluir o registro de comemoração de "${item.nome}"?`,
       () => deleteAniversariante(item.id)
+    );
+  };
+
+  const toggleSelectItem = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (filteredList.length === 0) return;
+    const filteredIds = filteredList.map((i) => i.id);
+    const isAllSelected = filteredIds.every((id) => selectedIds.includes(id));
+    if (isAllSelected) {
+      setSelectedIds((prev) => prev.filter((id) => !filteredIds.includes(id)));
+    } else {
+      setSelectedIds((prev) => Array.from(new Set([...prev, ...filteredIds])));
+    }
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedIds.length === 0) return;
+    askConfirmDelete(
+      'Excluir Comemorações Selecionadas',
+      `Deseja realmente excluir as ${selectedIds.length} comemoração(ões) selecionadas? Esta ação não poderá ser desfeita.`,
+      () => {
+        deleteMultipleAniversariantes(selectedIds);
+        setSelectedIds([]);
+      }
     );
   };
 
@@ -195,6 +226,41 @@ export const AniversariantesView: React.FC = () => {
         </div>
       </div>
 
+      {/* Selection Toolbar */}
+      {filteredList.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-900/90 border border-slate-800 rounded-2xl px-4 py-3 text-xs">
+          <label className="flex items-center gap-2 cursor-pointer font-semibold text-slate-300 hover:text-slate-100 select-none">
+            <input
+              type="checkbox"
+              checked={
+                filteredList.length > 0 &&
+                filteredList.every((item) => selectedIds.includes(item.id))
+              }
+              onChange={toggleSelectAll}
+              className="w-4 h-4 rounded bg-slate-950 border-slate-700 text-purple-600 focus:ring-purple-500 cursor-pointer"
+            />
+            <span>
+              Selecionar todos ({filteredList.length})
+            </span>
+          </label>
+
+          {selectedIds.length > 0 && (
+            <div className="flex items-center gap-3">
+              <span className="text-slate-400 font-medium">
+                <strong className="text-purple-400">{selectedIds.length}</strong> selecionado(s)
+              </span>
+              <button
+                onClick={handleDeleteSelected}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-600/90 hover:bg-rose-600 text-white font-bold transition-all shadow-md shadow-rose-950/30"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Excluir Selecionados ({selectedIds.length})</span>
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* List Grid */}
       {filteredList.length === 0 ? (
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center">
@@ -206,20 +272,33 @@ export const AniversariantesView: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredList.map((item) => (
-            <div
-              key={item.id}
-              className="bg-slate-900 border border-slate-800 rounded-2xl p-5 hover:border-purple-500/40 transition-all shadow-md flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-start justify-between gap-2 mb-3">
-                  <div>
-                    <h3 className="font-extrabold text-slate-100 text-base">{item.nome}</h3>
-                    <span className="inline-flex items-center gap-1 text-xs text-purple-400 font-bold mt-0.5">
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>{item.tipoComemoracao}</span>
-                    </span>
-                  </div>
+          {filteredList.map((item) => {
+            const isSelected = selectedIds.includes(item.id);
+            return (
+              <div
+                key={item.id}
+                className={`bg-slate-900 border rounded-2xl p-5 transition-all shadow-md flex flex-col justify-between ${
+                  isSelected ? 'border-purple-500 bg-purple-950/20 shadow-purple-950/20' : 'border-slate-800 hover:border-purple-500/40'
+                }`}
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-2 mb-3">
+                    <div className="flex items-start gap-2.5">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleSelectItem(item.id)}
+                        className="mt-1 w-4 h-4 rounded bg-slate-950 border-slate-700 text-purple-600 focus:ring-purple-500 cursor-pointer shrink-0"
+                        title="Selecionar para exclusão"
+                      />
+                      <div>
+                        <h3 className="font-extrabold text-slate-100 text-base">{item.nome}</h3>
+                        <span className="inline-flex items-center gap-1 text-xs text-purple-400 font-bold mt-0.5">
+                          <Sparkles className="w-3.5 h-3.5" />
+                          <span>{item.tipoComemoracao}</span>
+                        </span>
+                      </div>
+                    </div>
 
                   <div className="px-3 py-1 bg-purple-950/80 border border-purple-800/80 rounded-xl text-right">
                     <span className="text-xs font-mono font-bold text-purple-200 block">{item.data}</span>
@@ -265,35 +344,38 @@ export const AniversariantesView: React.FC = () => {
                 </div>
               </div>
             </div>
-          ))}
+          );
+        })}
         </div>
       )}
 
       {/* Modal Form */}
       <AnimatePresence>
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl relative"
+              className="bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl p-5 sm:p-6 max-w-md w-full shadow-2xl relative max-h-[90vh] flex flex-col my-auto"
             >
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="absolute top-5 right-5 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"
+                className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors z-10"
               >
                 <X className="w-5 h-5" />
               </button>
 
-              <h3 className="text-lg font-bold text-slate-100 mb-1">
-                {editingItem ? 'Editar Comemoração' : 'Cadastrar Comemoração'}
-              </h3>
-              <p className="text-xs text-slate-400 mb-5">
-                Informe o nome e o que está sendo comemorado.
-              </p>
+              <div className="shrink-0 mb-3 pr-8">
+                <h3 className="text-lg font-bold text-slate-100 mb-0.5">
+                  {editingItem ? 'Editar Comemoração' : 'Cadastrar Comemoração'}
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Informe o nome e o que está sendo comemorado.
+                </p>
+              </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto pr-1 space-y-3 text-left">
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1">Nome / Casal *</label>
                   <input

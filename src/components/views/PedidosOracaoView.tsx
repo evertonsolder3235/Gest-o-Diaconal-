@@ -22,6 +22,7 @@ export const PedidosOracaoView: React.FC = () => {
     addPedido,
     updatePedido,
     deletePedido,
+    deleteMultiplePedidos,
     askConfirmDelete,
     searchQuery,
     setSearchQuery,
@@ -29,6 +30,7 @@ export const PedidosOracaoView: React.FC = () => {
   } = useApp();
 
   const [statusFilter, setStatusFilter] = useState<string>('todos');
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<PedidoOracao | null>(null);
 
@@ -91,6 +93,35 @@ export const PedidosOracaoView: React.FC = () => {
       'Excluir Pedido de Oração',
       `Deseja realmente excluir o motivo de oração de "${item.nome}"?`,
       () => deletePedido(item.id)
+    );
+  };
+
+  const toggleSelectItem = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (filteredList.length === 0) return;
+    const filteredIds = filteredList.map((i) => i.id);
+    const isAllSelected = filteredIds.every((id) => selectedIds.includes(id));
+    if (isAllSelected) {
+      setSelectedIds((prev) => prev.filter((id) => !filteredIds.includes(id)));
+    } else {
+      setSelectedIds((prev) => Array.from(new Set([...prev, ...filteredIds])));
+    }
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedIds.length === 0) return;
+    askConfirmDelete(
+      'Excluir Pedidos Selecionados',
+      `Deseja realmente excluir os ${selectedIds.length} pedido(s) de oração selecionados? Esta ação não poderá ser desfeita.`,
+      () => {
+        deleteMultiplePedidos(selectedIds);
+        setSelectedIds([]);
+      }
     );
   };
 
@@ -187,6 +218,41 @@ export const PedidosOracaoView: React.FC = () => {
         </div>
       </div>
 
+      {/* Selection Toolbar */}
+      {filteredList.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-900/90 border border-slate-800 rounded-2xl px-4 py-3 text-xs">
+          <label className="flex items-center gap-2 cursor-pointer font-semibold text-slate-300 hover:text-slate-100 select-none">
+            <input
+              type="checkbox"
+              checked={
+                filteredList.length > 0 &&
+                filteredList.every((item) => selectedIds.includes(item.id))
+              }
+              onChange={toggleSelectAll}
+              className="w-4 h-4 rounded bg-slate-950 border-slate-700 text-rose-600 focus:ring-rose-500 cursor-pointer"
+            />
+            <span>
+              Selecionar todos ({filteredList.length})
+            </span>
+          </label>
+
+          {selectedIds.length > 0 && (
+            <div className="flex items-center gap-3">
+              <span className="text-slate-400 font-medium">
+                <strong className="text-rose-400">{selectedIds.length}</strong> selecionado(s)
+              </span>
+              <button
+                onClick={handleDeleteSelected}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-600/90 hover:bg-rose-600 text-white font-bold transition-all shadow-md shadow-rose-950/30"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Excluir Selecionados ({selectedIds.length})</span>
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Prayers List */}
       {filteredList.length === 0 ? (
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center">
@@ -198,26 +264,39 @@ export const PedidosOracaoView: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {filteredList.map((item) => (
-            <div
-              key={item.id}
-              className={`bg-slate-900 border rounded-2xl p-5 hover:border-slate-700 transition-all shadow-md flex flex-col justify-between ${
-                item.status === 'Urgente'
-                  ? 'border-rose-800/80 bg-slate-900/90'
-                  : item.status === 'Atendido / Agradecimento'
-                  ? 'border-emerald-800/60 bg-slate-900/90'
-                  : 'border-slate-800'
-              }`}
-            >
-              <div>
-                <div className="flex items-start justify-between gap-2 mb-3">
-                  <div>
-                    <h3 className="font-extrabold text-slate-100 text-base">{item.nome}</h3>
-                    <span className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
-                      <Calendar className="w-3 h-3 text-slate-500" />
-                      <span>Registrado em: {item.data}</span>
-                    </span>
-                  </div>
+          {filteredList.map((item) => {
+            const isSelected = selectedIds.includes(item.id);
+            return (
+              <div
+                key={item.id}
+                className={`bg-slate-900 border rounded-2xl p-5 transition-all shadow-md flex flex-col justify-between ${
+                  isSelected
+                    ? 'border-rose-500 bg-rose-950/20 shadow-rose-950/20'
+                    : item.status === 'Urgente'
+                    ? 'border-rose-800/80 bg-slate-900/90'
+                    : item.status === 'Atendido / Agradecimento'
+                    ? 'border-emerald-800/60 bg-slate-900/90'
+                    : 'border-slate-800 hover:border-slate-700'
+                }`}
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-2 mb-3">
+                    <div className="flex items-start gap-2.5">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleSelectItem(item.id)}
+                        className="mt-1 w-4 h-4 rounded bg-slate-950 border-slate-700 text-rose-600 focus:ring-rose-500 cursor-pointer shrink-0"
+                        title="Selecionar para exclusão"
+                      />
+                      <div>
+                        <h3 className="font-extrabold text-slate-100 text-base">{item.nome}</h3>
+                        <span className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
+                          <Calendar className="w-3 h-3 text-slate-500" />
+                          <span>Registrado em: {item.data}</span>
+                        </span>
+                      </div>
+                    </div>
 
                   <span
                     className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold shrink-0 border ${
@@ -281,7 +360,8 @@ export const PedidosOracaoView: React.FC = () => {
                 </div>
               </div>
             </div>
-          ))}
+          );
+        })}
         </div>
       )}
 

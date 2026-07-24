@@ -8,7 +8,6 @@ export const AdminPasswordModal: React.FC = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(false);
-  const [rememberSession, setRememberSession] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -31,7 +30,7 @@ export const AdminPasswordModal: React.FC = () => {
       return;
     }
 
-    const success = verifyAndUnlockAdmin(password, rememberSession);
+    const success = verifyAndUnlockAdmin(password, false);
     if (!success) {
       setError(true);
     }
@@ -102,22 +101,6 @@ export const AdminPasswordModal: React.FC = () => {
                   Senha incorreta. Tente novamente.
                 </p>
               )}
-            </div>
-
-            <div className="flex items-center gap-2 pt-1">
-              <input
-                type="checkbox"
-                id="rememberSession"
-                checked={rememberSession}
-                onChange={(e) => setRememberSession(e.target.checked)}
-                className="w-4 h-4 rounded bg-slate-950 border-slate-800 text-blue-600 focus:ring-blue-500 focus:ring-offset-slate-900 cursor-pointer"
-              />
-              <label
-                htmlFor="rememberSession"
-                className="text-xs text-slate-300 font-medium cursor-pointer select-none"
-              >
-                Manter liberado nesta sessão
-              </label>
             </div>
 
             <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
