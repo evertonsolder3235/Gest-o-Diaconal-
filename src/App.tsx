@@ -2,6 +2,7 @@ import React from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { Header } from './components/Header';
 import { InstallBanner } from './components/InstallBanner';
+import { FloatingInstallButton } from './components/FloatingInstallButton';
 import { BottomNav } from './components/BottomNav';
 import { ToastContainer } from './components/ToastContainer';
 import { ConfirmModal } from './components/ConfirmModal';
@@ -44,6 +45,9 @@ const MainLayout: React.FC = () => {
 
       {/* Mobile Bottom Navigation */}
       <BottomNav />
+
+      {/* Floating APK / App Install Button */}
+      <FloatingInstallButton />
 
       {/* Global Feedback Toasts, Deletion Confirmation Modal & Admin Password Protection */}
       <ToastContainer />
