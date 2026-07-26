@@ -142,62 +142,75 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 const LOCAL_STORAGE_KEY_PREFIX = 'gestao_diaconal_';
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Load initial states from localStorage if available
-  const [currentUser, setCurrentUser] = useState<User>(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEY_PREFIX + 'user');
-    return saved ? JSON.parse(saved) : initialUsers[0];
-  });
+  // Safe helper to read from localStorage without crashing
+  const safeLoadStorage = <T,>(keySuffix: string, fallback: T): T => {
+    try {
+      const saved = localStorage.getItem(LOCAL_STORAGE_KEY_PREFIX + keySuffix);
+      if (!saved) return fallback;
+      const parsed = JSON.parse(saved);
+      return parsed !== null && parsed !== undefined ? parsed : fallback;
+    } catch (e) {
+      console.warn(`Erro ao carregar '${keySuffix}' do localStorage, usando dados padrão:`, e);
+      return fallback;
+    }
+  };
+
+  // Load initial states safely from localStorage
+  const [currentUser, setCurrentUser] = useState<User>(() => 
+    safeLoadStorage<User>('user', initialUsers[0])
+  );
 
   const [activeTab, setActiveTabState] = useState<ViewTab>('dashboard');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const [config, setConfig] = useState<IgrejaConfig>(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEY_PREFIX + 'config');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (parsed.nomeIgreja === 'Igreja Evangélica Central') {
-        parsed.nomeIgreja = 'IGREJA ADBRAS SEDE';
+    try {
+      const saved = localStorage.getItem(LOCAL_STORAGE_KEY_PREFIX + 'config');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === 'object') {
+          if (parsed.nomeIgreja === 'Igreja Evangélica Central') {
+            parsed.nomeIgreja = 'IGREJA ADBRAS SEDE';
+          }
+          return { ...initialConfig, ...parsed };
+        }
       }
-      return parsed;
+    } catch (e) {
+      console.warn('Erro ao carregar config:', e);
     }
     return initialConfig;
   });
 
-  const [visitantes, setVisitantes] = useState<Visitante[]>(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEY_PREFIX + 'visitantes');
-    return saved ? JSON.parse(saved) : initialVisitantes;
-  });
+  const [visitantes, setVisitantes] = useState<Visitante[]>(() =>
+    safeLoadStorage<Visitante[]>('visitantes', initialVisitantes)
+  );
 
-  const [aniversariantes, setAniversariantes] = useState<Aniversariante[]>(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEY_PREFIX + 'aniversariantes');
-    return saved ? JSON.parse(saved) : initialAniversariantes;
-  });
+  const [aniversariantes, setAniversariantes] = useState<Aniversariante[]>(() =>
+    safeLoadStorage<Aniversariante[]>('aniversariantes', initialAniversariantes)
+  );
 
-  const [obreiros, setObreiros] = useState<Obreiro[]>(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEY_PREFIX + 'obreiros');
-    return saved ? JSON.parse(saved) : initialObreiros;
-  });
+  const [obreiros, setObreiros] = useState<Obreiro[]>(() =>
+    safeLoadStorage<Obreiro[]>('obreiros', initialObreiros)
+  );
 
-  const [pedidos, setPedidos] = useState<PedidoOracao[]>(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEY_PREFIX + 'pedidos');
-    return saved ? JSON.parse(saved) : initialPedidosOracao;
-  });
+  const [pedidos, setPedidos] = useState<PedidoOracao[]>(() =>
+    safeLoadStorage<PedidoOracao[]>('pedidos', initialPedidosOracao)
+  );
 
-  const [avisos, setAvisos] = useState<Aviso[]>(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEY_PREFIX + 'avisos');
-    return saved ? JSON.parse(saved) : initialAvisos;
-  });
+  const [avisos, setAvisos] = useState<Aviso[]>(() =>
+    safeLoadStorage<Aviso[]>('avisos', initialAvisos)
+  );
 
-  const [contribuicoes, setContribuicoes] = useState<ContribuicaoFinanceira[]>(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEY_PREFIX + 'contribuicoes');
-    return saved ? JSON.parse(saved) : initialContribuicoes;
-  });
+  const [contribuicoes, setContribuicoes] = useState<ContribuicaoFinanceira[]>(() =>
+    safeLoadStorage<ContribuicaoFinanceira[]>('contribuicoes', initialContribuicoes)
+  );
 
   const [escalas, setEscalas] = useState<ItemEscala[]>(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEY_PREFIX + 'escalas');
-    if (!saved) return initialEscalas;
     try {
+      const saved = localStorage.getItem(LOCAL_STORAGE_KEY_PREFIX + 'escalas');
+      if (!saved) return initialEscalas;
       const parsed: ItemEscala[] = JSON.parse(saved);
+      if (!Array.isArray(parsed)) return initialEscalas;
       const missing = initialEscalas.filter((init) => !parsed.some((p) => p.id === init.id));
       return missing.length > 0 ? [...parsed, ...missing] : parsed;
     } catch {
@@ -205,17 +218,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   });
 
-  const [unseenModules, setUnseenModules] = useState<UnseenModules>(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEY_PREFIX + 'unseen_modules');
-    return saved ? JSON.parse(saved) : {
+  const [unseenModules, setUnseenModules] = useState<UnseenModules>(() =>
+    safeLoadStorage<UnseenModules>('unseen_modules', {
       visitantes: true,
       aniversariantes: true,
       obreiros: true,
       pedidos: true,
       avisos: true,
       financeiro: true
-    };
-  });
+    })
+  );
 
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [confirmModal, setConfirmModal] = useState<ConfirmDeleteState | null>(null);
