@@ -276,6 +276,42 @@ export const initialContribuicoes: ContribuicaoFinanceira[] = [
 
 export const initialEscalas: ItemEscala[] = [
   {
+    id: 'e-today-1',
+    data: '2026-07-27',
+    horario: '19:30',
+    lugar: 'ALTAR',
+    nomePessoa: 'Diácono Carlos Silva',
+    grupo: 'Homens',
+    observacao: 'Dirigente do culto de hoje'
+  },
+  {
+    id: 'e-today-2',
+    data: '2026-07-27',
+    horario: '19:00',
+    lugar: 'ESTACIONAMENTO',
+    nomePessoa: 'Pb. Roberto Santos',
+    grupo: 'Homens',
+    observacao: 'Organização do trânsito e recepção'
+  },
+  {
+    id: 'e-today-3',
+    data: '2026-07-27',
+    horario: '19:00',
+    lugar: 'RECEPÇÃO',
+    nomePessoa: 'Irmã Maria Fernandes',
+    grupo: 'Mulheres',
+    observacao: 'Recepção e Acolhimento de hoje'
+  },
+  {
+    id: 'e-today-4',
+    data: '2026-07-27',
+    horario: '19:15',
+    lugar: 'INTERCESSÃO',
+    nomePessoa: 'Ana Paula Souza',
+    grupo: 'Mulheres',
+    observacao: 'Sala de Oração'
+  },
+  {
     id: 'e-1',
     data: '2026-07-23',
     horario: '19:30',

@@ -40,8 +40,8 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
   // Mode: 'semanal' | 'mensal'
   const [viewMode, setViewMode] = useState<'semanal' | 'mensal'>('semanal');
 
-  // Month navigation (Defaults to current month: July 2026)
-  const [currentDate, setCurrentDate] = useState<Date>(new Date(2026, 6, 1)); // July 2026
+  // Month navigation (Defaults to current month)
+  const [currentDate, setCurrentDate] = useState<Date>(() => new Date());
 
   // Form State for adding/editing a schedule item
   const [showItemForm, setShowItemForm] = useState<boolean>(false);
@@ -72,11 +72,23 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
   // Filter items for target group ('Homens' or 'Mulheres')
   const groupEscalas = localEscalas.filter((e) => e.grupo === grupoTarget);
 
-  // Current Week calculation (Default to week of July 20, 2026 to July 26, 2026)
+  // Date Formatting Helper
+  const formatDateString = (y: number, m: number, d: number) => {
+    const mm = String(m + 1).padStart(2, '0');
+    const dd = String(d).padStart(2, '0');
+    return `${y}-${mm}-${dd}`;
+  };
+
+  const getFormattedDate = (d: Date) => {
+    return formatDateString(d.getFullYear(), d.getMonth(), d.getDate());
+  };
+
+  const todayStr = useMemo(() => getFormattedDate(new Date()), []);
+
+  // Current Week calculation (Monday through Sunday for current week)
   const weekDates = useMemo(() => {
-    const today = new Date(2026, 6, 23); // Base date: Thursday Jul 23, 2026
-    const dayOfWeek = today.getDay(); // 4 = Thu
-    // Start week on Monday
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0 = Sun, 1 = Mon...
     const startOfWeek = new Date(today);
     const diffToMon = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
     startOfWeek.setDate(today.getDate() + diffToMon);
@@ -90,40 +102,34 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
     return weekDays;
   }, []);
 
-  const todayStr = '2026-07-23';
-
-  // Sort week dates so current service days and today are always at the top
+  // Sort week dates so current day (HOJE) is ALWAYS at the very top
   const sortedWeekDates = useMemo(() => {
-    const formatDateStr = (y: number, m: number, d: number) => {
-      const mm = String(m + 1).padStart(2, '0');
-      const dd = String(d).padStart(2, '0');
-      return `${y}-${mm}-${dd}`;
-    };
-
     return [...weekDates].sort((a, b) => {
-      const dateStrA = formatDateStr(a.getFullYear(), a.getMonth(), a.getDate());
-      const dateStrB = formatDateStr(b.getFullYear(), b.getMonth(), b.getDate());
-
-      const itemsA = groupEscalas.filter((i) => i.data === dateStrA);
-      const itemsB = groupEscalas.filter((i) => i.data === dateStrB);
+      const dateStrA = getFormattedDate(a);
+      const dateStrB = getFormattedDate(b);
 
       const isTodayA = dateStrA === todayStr;
       const isTodayB = dateStrB === todayStr;
 
+      // Today ALWAYS comes first at the very top
+      if (isTodayA && !isTodayB) return -1;
+      if (!isTodayA && isTodayB) return 1;
+
+      const itemsA = groupEscalas.filter((i) => i.data === dateStrA);
+      const itemsB = groupEscalas.filter((i) => i.data === dateStrB);
+
       const isPastA = dateStrA < todayStr;
       const isPastB = dateStrB < todayStr;
 
-      const getRank = (isToday: boolean, isPast: boolean, count: number) => {
-        if (isToday && count > 0) return 0; // Today with active service
-        if (isToday) return 1; // Today
-        if (!isPast && count > 0) return 2; // Upcoming days with active service
-        if (!isPast && count === 0) return 3; // Upcoming days without service
-        if (isPast && count > 0) return 4; // Past days with active service
-        return 5; // Past days without service
+      const getRank = (isPast: boolean, count: number) => {
+        if (!isPast && count > 0) return 1; // Future with active service
+        if (!isPast && count === 0) return 2; // Future without service
+        if (isPast && count > 0) return 3; // Past with active service
+        return 4; // Past without service
       };
 
-      const rankA = getRank(isTodayA, isPastA, itemsA.length);
-      const rankB = getRank(isTodayB, isPastB, itemsB.length);
+      const rankA = getRank(isPastA, itemsA.length);
+      const rankB = getRank(isPastB, itemsB.length);
 
       if (rankA !== rankB) {
         return rankA - rankB;
@@ -131,7 +137,7 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
 
       return dateStrA.localeCompare(dateStrB);
     });
-  }, [weekDates, groupEscalas]);
+  }, [weekDates, groupEscalas, todayStr]);
 
   if (!isOpen) return null;
 
@@ -151,13 +157,6 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
 
   const nextMonth = () => {
     setCurrentDate(new Date(year, month + 1, 1));
-  };
-
-  // Helper for formatted date
-  const formatDateString = (y: number, m: number, d: number) => {
-    const mm = String(m + 1).padStart(2, '0');
-    const dd = String(d).padStart(2, '0');
-    return `${y}-${mm}-${dd}`;
   };
 
   // Handle Form Submission
@@ -400,23 +399,24 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
                   return (
                     <div
                       key={dateStr}
-                      className={`rounded-2xl p-4 flex flex-col justify-between transition-all shadow-md ${
+                      className={`rounded-2xl p-4 sm:p-5 flex flex-col justify-between transition-all shadow-md ${
                         isToday
-                          ? 'bg-blue-950/20 border-2 border-blue-500 shadow-blue-950/50 ring-1 ring-blue-500/30'
+                          ? 'col-span-1 md:col-span-2 lg:col-span-3 bg-gradient-to-br from-blue-950/90 via-slate-900 to-indigo-950/90 border-2 border-blue-400 ring-2 ring-blue-500/40 shadow-xl shadow-blue-950/80'
                           : 'bg-slate-950 border border-slate-800 hover:border-slate-700'
                       }`}
                     >
                       <div>
                         {/* Day Header */}
-                        <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-slate-800">
+                        <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-slate-800/80">
                           <div>
-                            <div className="flex items-center gap-1.5">
-                              <span className={`text-xs font-bold uppercase tracking-wider block capitalize ${isToday ? 'text-blue-400 font-extrabold' : 'text-slate-400'}`}>
+                            <div className="flex items-center gap-2">
+                              <span className={`text-xs font-bold uppercase tracking-wider block capitalize ${isToday ? 'text-blue-300 font-black' : 'text-slate-400'}`}>
                                 {dayName}
                               </span>
                               {isToday && (
-                                <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-blue-600 text-white shadow-sm">
-                                  HOJE
+                                <span className="text-[11px] font-black px-2.5 py-0.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md flex items-center gap-1 border border-blue-400/40 animate-pulse">
+                                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                                  HOJE - DIA ATUAL
                                 </span>
                               )}
                             </div>
@@ -424,9 +424,9 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
                               {dayNum} {monthNameShort}
                             </span>
                           </div>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                          <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
                             dayItems.length > 0
-                              ? 'bg-emerald-950/80 text-emerald-300 border-emerald-700/80'
+                              ? 'bg-emerald-950/90 text-emerald-300 border-emerald-700/80'
                               : 'bg-slate-800 text-slate-400 border-slate-700'
                           }`}>
                             {dayItems.length} escalado(s)
@@ -558,25 +558,35 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
                     const dayNum = idx + 1;
                     const dateStr = formatDateString(year, month, dayNum);
                     const dayItems = groupEscalas.filter((i) => i.data === dateStr);
+                    const isTodayCell = dateStr === todayStr;
 
                     return (
                       <div
                         key={dateStr}
                         onClick={() => handleOpenAddForm(dateStr)}
                         className={`min-h-[85px] p-2 rounded-xl border flex flex-col justify-between cursor-pointer transition-all ${
-                          dayItems.length > 0
+                          isTodayCell
+                            ? 'bg-blue-950/80 border-2 border-blue-400 ring-2 ring-blue-500/30 shadow-md shadow-blue-950/60'
+                            : dayItems.length > 0
                             ? 'bg-slate-900/90 border-blue-600/40 hover:border-blue-500 shadow-sm'
                             : 'bg-slate-900/40 border-slate-800 hover:border-slate-700 hover:bg-slate-850'
                         }`}
                       >
                         <div className="flex items-center justify-between">
-                          <span
-                            className={`text-xs font-extrabold ${
-                              dayItems.length > 0 ? 'text-blue-400' : 'text-slate-300'
-                            }`}
-                          >
-                            {dayNum}
-                          </span>
+                          <div className="flex items-center gap-1">
+                            <span
+                              className={`text-xs font-black ${
+                                isTodayCell ? 'text-blue-300' : dayItems.length > 0 ? 'text-blue-400' : 'text-slate-300'
+                              }`}
+                            >
+                              {dayNum}
+                            </span>
+                            {isTodayCell && (
+                              <span className="text-[9px] font-black px-1 py-0.2 rounded bg-blue-600 text-white leading-none">
+                                HOJE
+                              </span>
+                            )}
+                          </div>
                           {dayItems.length > 0 && (
                             <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
                           )}
