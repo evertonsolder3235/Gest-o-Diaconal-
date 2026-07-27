@@ -89,11 +89,13 @@ export const PedidosOracaoView: React.FC = () => {
   };
 
   const handleDelete = (item: PedidoOracao) => {
-    askConfirmDelete(
-      'Excluir Pedido de Oração',
-      `Deseja realmente excluir o motivo de oração de "${item.nome}"?`,
-      () => deletePedido(item.id)
-    );
+    requestAdminAuth(() => {
+      askConfirmDelete(
+        'Excluir Pedido de Oração',
+        `Deseja realmente excluir o motivo de oração de "${item.nome}"?`,
+        () => deletePedido(item.id)
+      );
+    }, 'Excluir Pedido de Oração');
   };
 
   const toggleSelectItem = (id: string) => {
@@ -115,14 +117,16 @@ export const PedidosOracaoView: React.FC = () => {
 
   const handleDeleteSelected = () => {
     if (selectedIds.length === 0) return;
-    askConfirmDelete(
-      'Excluir Pedidos Selecionados',
-      `Deseja realmente excluir os ${selectedIds.length} pedido(s) de oração selecionados? Esta ação não poderá ser desfeita.`,
-      () => {
-        deleteMultiplePedidos(selectedIds);
-        setSelectedIds([]);
-      }
-    );
+    requestAdminAuth(() => {
+      askConfirmDelete(
+        'Excluir Pedidos Selecionados',
+        `Deseja realmente excluir os ${selectedIds.length} pedido(s) de oração selecionados? Esta ação não poderá ser desfeita.`,
+        () => {
+          deleteMultiplePedidos(selectedIds);
+          setSelectedIds([]);
+        }
+      );
+    }, 'Excluir Pedidos Selecionados');
   };
 
   const filteredList = pedidos.filter((item) => {

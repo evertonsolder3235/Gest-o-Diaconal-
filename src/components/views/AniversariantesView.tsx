@@ -89,11 +89,13 @@ export const AniversariantesView: React.FC = () => {
   };
 
   const handleDelete = (item: Aniversariante) => {
-    askConfirmDelete(
-      'Excluir Comemoração',
-      `Deseja realmente excluir o registro de comemoração de "${item.nome}"?`,
-      () => deleteAniversariante(item.id)
-    );
+    requestAdminAuth(() => {
+      askConfirmDelete(
+        'Excluir Comemoração',
+        `Deseja realmente excluir o registro de comemoração de "${item.nome}"?`,
+        () => deleteAniversariante(item.id)
+      );
+    }, 'Excluir Comemoração');
   };
 
   const toggleSelectItem = (id: string) => {
@@ -115,14 +117,16 @@ export const AniversariantesView: React.FC = () => {
 
   const handleDeleteSelected = () => {
     if (selectedIds.length === 0) return;
-    askConfirmDelete(
-      'Excluir Comemorações Selecionadas',
-      `Deseja realmente excluir as ${selectedIds.length} comemoração(ões) selecionadas? Esta ação não poderá ser desfeita.`,
-      () => {
-        deleteMultipleAniversariantes(selectedIds);
-        setSelectedIds([]);
-      }
-    );
+    requestAdminAuth(() => {
+      askConfirmDelete(
+        'Excluir Comemorações Selecionadas',
+        `Deseja realmente excluir as ${selectedIds.length} comemoração(ões) selecionadas? Esta ação não poderá ser desfeita.`,
+        () => {
+          deleteMultipleAniversariantes(selectedIds);
+          setSelectedIds([]);
+        }
+      );
+    }, 'Excluir Comemorações Selecionadas');
   };
 
   const getWhatsAppMsgLink = (item: Aniversariante) => {
