@@ -253,7 +253,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const verifyAndUnlockAdmin = (password: string, rememberSession = true): boolean => {
-    if (password === 'Admimadbras') {
+    if (password === 'Adbrassede##') {
       if (rememberSession) {
         setIsAdminUnlocked(true);
       }
