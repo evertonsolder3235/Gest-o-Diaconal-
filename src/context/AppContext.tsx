@@ -155,6 +155,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  // Safe helper to write to localStorage without crashing if storage quota is exceeded
+  const safeSaveStorage = (keySuffix: string, value: any) => {
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY_PREFIX + keySuffix, JSON.stringify(value));
+    } catch (e) {
+      console.warn(`Aviso ao salvar '${keySuffix}' no localStorage:`, e);
+    }
+  };
+
   // Load initial states safely from localStorage
   const [currentUser, setCurrentUser] = useState<User>(() => 
     safeLoadStorage<User>('user', initialUsers[0])
@@ -279,46 +288,46 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // Sync to LocalStorage
   useEffect(() => {
     if (currentUser) {
-      localStorage.setItem(LOCAL_STORAGE_KEY_PREFIX + 'user', JSON.stringify(currentUser));
+      safeSaveStorage('user', currentUser);
     } else {
       localStorage.removeItem(LOCAL_STORAGE_KEY_PREFIX + 'user');
     }
   }, [currentUser]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_PREFIX + 'config', JSON.stringify(config));
+    safeSaveStorage('config', config);
   }, [config]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_PREFIX + 'visitantes', JSON.stringify(visitantes));
+    safeSaveStorage('visitantes', visitantes);
   }, [visitantes]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_PREFIX + 'aniversariantes', JSON.stringify(aniversariantes));
+    safeSaveStorage('aniversariantes', aniversariantes);
   }, [aniversariantes]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_PREFIX + 'obreiros', JSON.stringify(obreiros));
+    safeSaveStorage('obreiros', obreiros);
   }, [obreiros]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_PREFIX + 'pedidos', JSON.stringify(pedidos));
+    safeSaveStorage('pedidos', pedidos);
   }, [pedidos]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_PREFIX + 'avisos', JSON.stringify(avisos));
+    safeSaveStorage('avisos', avisos);
   }, [avisos]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_PREFIX + 'contribuicoes', JSON.stringify(contribuicoes));
+    safeSaveStorage('contribuicoes', contribuicoes);
   }, [contribuicoes]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_PREFIX + 'escalas', JSON.stringify(escalas));
+    safeSaveStorage('escalas', escalas);
   }, [escalas]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_PREFIX + 'unseen_modules', JSON.stringify(unseenModules));
+    safeSaveStorage('unseen_modules', unseenModules);
   }, [unseenModules]);
 
   const markAsSeen = (category: UnseenCategory | string) => {

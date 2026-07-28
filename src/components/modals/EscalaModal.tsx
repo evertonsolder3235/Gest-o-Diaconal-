@@ -92,15 +92,50 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      showToast('error', 'A imagem da foto deve ter no máximo 5MB.');
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('error', 'A imagem da foto deve ter no máximo 10MB.');
       return;
     }
     const reader = new FileReader();
     reader.onload = (event) => {
-      const base64 = event.target?.result as string;
-      setFormData((prev) => ({ ...prev, fotoUrl: base64 }));
-      showToast('info', 'Foto carregada com sucesso.');
+      const img = new Image();
+      img.onload = () => {
+        // Compress image using canvas to max 400x400 to fit easily in localStorage
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 400;
+        const MAX_HEIGHT = 400;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height = Math.round((height * MAX_WIDTH) / width);
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width = Math.round((width * MAX_HEIGHT) / height);
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+          setFormData((prev) => ({ ...prev, fotoUrl: compressedBase64 }));
+          showToast('info', 'Foto carregada e otimizada com sucesso.');
+        } else {
+          setFormData((prev) => ({ ...prev, fotoUrl: event.target?.result as string }));
+          showToast('info', 'Foto carregada.');
+        }
+      };
+      img.onerror = () => {
+        showToast('error', 'Erro ao processar imagem.');
+      };
+      img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
   };
