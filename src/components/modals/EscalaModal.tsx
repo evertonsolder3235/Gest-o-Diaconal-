@@ -19,7 +19,11 @@ import {
   Users,
   Edit2,
   CalendarDays,
-  ListFilter
+  ListFilter,
+  Camera,
+  Upload,
+  Maximize2,
+  ZoomIn
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { ItemEscala, LugarEscala } from '../../types';
@@ -39,6 +43,28 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
 
   // Mode: 'semanal' | 'mensal'
   const [viewMode, setViewMode] = useState<'semanal' | 'mensal'>('semanal');
+  const [isMontarEscalaAuth, setIsMontarEscalaAuth] = useState<boolean>(false);
+  const [fullScreenImage, setFullScreenImage] = useState<{ url: string; title?: string } | null>(null);
+
+  // Close full screen photo on Escape key
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && fullScreenImage) {
+        setFullScreenImage(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [fullScreenImage]);
+
+  // Reset auth and view mode when modal closes
+  React.useEffect(() => {
+    if (!isOpen) {
+      setIsMontarEscalaAuth(false);
+      setViewMode('semanal');
+      setFullScreenImage(null);
+    }
+  }, [isOpen]);
 
   // Month navigation (Defaults to current month)
   const [currentDate, setCurrentDate] = useState<Date>(() => new Date());
@@ -53,13 +79,31 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
     lugar: LugarEscala | string;
     nomePessoa: string;
     observacao: string;
+    fotoUrl: string;
   }>({
     data: new Date().toISOString().slice(0, 10),
     horario: '19:30',
     lugar: 'ALTAR',
     nomePessoa: '',
-    observacao: ''
+    observacao: '',
+    fotoUrl: ''
   });
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('error', 'A imagem da foto deve ter no máximo 5MB.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64 = event.target?.result as string;
+      setFormData((prev) => ({ ...prev, fotoUrl: base64 }));
+      showToast('info', 'Foto carregada com sucesso.');
+    };
+    reader.readAsDataURL(file);
+  };
 
   // Local draft items while editing monthly scale
   const [localEscalas, setLocalEscalas] = useState<ItemEscala[]>(escalas);
@@ -193,31 +237,51 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
   };
 
   const handleOpenAddForm = (selectedDate?: string) => {
-    requestAdminAuth(() => {
+    const openForm = () => {
       setEditingItem(null);
       setFormData({
         data: selectedDate || new Date().toISOString().slice(0, 10),
         horario: '19:30',
         lugar: 'ALTAR',
         nomePessoa: '',
-        observacao: ''
+        observacao: '',
+        fotoUrl: ''
       });
       setShowItemForm(true);
-    }, 'Adicionar à Escala');
+    };
+
+    if (isMontarEscalaAuth || viewMode === 'mensal') {
+      openForm();
+    } else {
+      requestAdminAuth(() => {
+        setIsMontarEscalaAuth(true);
+        openForm();
+      }, 'Adicionar à Escala');
+    }
   };
 
   const handleOpenEditForm = (item: ItemEscala) => {
-    requestAdminAuth(() => {
+    const openForm = () => {
       setEditingItem(item);
       setFormData({
         data: item.data,
         horario: item.horario,
         lugar: item.lugar,
         nomePessoa: item.nomePessoa,
-        observacao: item.observacao || ''
+        observacao: item.observacao || '',
+        fotoUrl: item.fotoUrl || ''
       });
       setShowItemForm(true);
-    }, 'Editar Escalado');
+    };
+
+    if (isMontarEscalaAuth || viewMode === 'mensal') {
+      openForm();
+    } else {
+      requestAdminAuth(() => {
+        setIsMontarEscalaAuth(true);
+        openForm();
+      }, 'Editar Escalado');
+    }
   };
 
   const handleDeleteItemLocal = (id: string) => {
@@ -228,6 +292,7 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
   // Final Save Escala Action
   const handleSaveAndShowWeekly = () => {
     saveEscalasBulk(localEscalas);
+    setIsMontarEscalaAuth(false);
     setViewMode('semanal');
   };
 
@@ -307,7 +372,10 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
 
           <div className="flex items-center gap-2">
             <button
-              onClick={onClose}
+              onClick={() => {
+                setIsMontarEscalaAuth(false);
+                onClose();
+              }}
               className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-all"
             >
               <X className="w-5 h-5" />
@@ -319,7 +387,10 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
         <div className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-5 py-3 bg-slate-900/50 border-b border-slate-800">
           <div className="flex items-center gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800">
             <button
-              onClick={() => setViewMode('semanal')}
+              onClick={() => {
+                setViewMode('semanal');
+                setIsMontarEscalaAuth(false);
+              }}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 viewMode === 'semanal'
                   ? 'bg-blue-600 text-white shadow-md'
@@ -330,7 +401,16 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
               <span>Escala Semanal</span>
             </button>
             <button
-              onClick={() => requestAdminAuth(() => setViewMode('mensal'), 'Montar / Editar Escala Mensal')}
+              onClick={() => {
+                if (isMontarEscalaAuth || viewMode === 'mensal') {
+                  setViewMode('mensal');
+                } else {
+                  requestAdminAuth(() => {
+                    setIsMontarEscalaAuth(true);
+                    setViewMode('mensal');
+                  }, 'Montar / Editar Escala Mensal');
+                }
+              }}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 viewMode === 'mensal'
                   ? 'bg-blue-600 text-white shadow-md'
@@ -443,37 +523,69 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
                             {dayItems.map((item) => (
                               <div
                                 key={item.id}
-                                className="bg-slate-900 border border-slate-800 rounded-xl p-2.5 flex items-start justify-between gap-2"
+                                className="bg-slate-900 border border-slate-800 rounded-xl p-3 flex items-center justify-between gap-3 hover:border-slate-700 transition-all shadow-sm"
                               >
-                                <div className="space-y-1">
-                                  <div className="flex flex-wrap items-center gap-1.5">
-                                    <span
-                                      className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md border flex items-center gap-1 ${getPlaceBadgeColor(
-                                        item.lugar
-                                      )}`}
-                                    >
-                                      {getPlaceIcon(item.lugar)}
-                                      <span>{item.lugar}</span>
-                                    </span>
-                                    <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">
-                                      <Clock className="w-2.5 h-2.5 text-blue-400" />
-                                      <span>{item.horario}</span>
-                                    </span>
+                                <div className="flex items-center gap-3 min-w-0">
+                                  {/* Avatar Photo */}
+                                  <div
+                                    className={`relative shrink-0 ${
+                                      item.fotoUrl ? 'cursor-pointer group/photo' : ''
+                                    }`}
+                                    onClick={(e) => {
+                                      if (item.fotoUrl) {
+                                        e.stopPropagation();
+                                        setFullScreenImage({ url: item.fotoUrl, title: item.nomePessoa });
+                                      }
+                                    }}
+                                    title={item.fotoUrl ? 'Clique para ver foto em tela cheia' : undefined}
+                                  >
+                                    {item.fotoUrl ? (
+                                      <>
+                                        <img
+                                          src={item.fotoUrl}
+                                          alt={item.nomePessoa}
+                                          className="w-12 h-12 rounded-full object-cover border-2 border-blue-500/80 shadow-md group-hover/photo:scale-105 group-hover/photo:border-blue-400 group-hover/photo:ring-2 group-hover/photo:ring-blue-400/50 transition-all"
+                                        />
+                                        <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover/photo:opacity-100 flex items-center justify-center transition-opacity">
+                                          <Maximize2 className="w-4 h-4 text-white drop-shadow-md" />
+                                        </div>
+                                      </>
+                                    ) : (
+                                      <div className="w-11 h-11 rounded-full bg-slate-800 border-2 border-slate-700/80 flex items-center justify-center text-slate-400 font-bold text-xs shadow-inner">
+                                        <User className="w-5 h-5 text-blue-400" />
+                                      </div>
+                                    )}
                                   </div>
-                                  <div className="text-xs font-bold text-white flex items-center gap-1.5 pt-0.5">
-                                    <User className="w-3 h-3 text-blue-400 shrink-0" />
-                                    <span>{item.nomePessoa}</span>
+
+                                  <div className="space-y-1 min-w-0">
+                                    <div className="flex flex-wrap items-center gap-1.5">
+                                      <span
+                                        className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md border flex items-center gap-1 ${getPlaceBadgeColor(
+                                          item.lugar
+                                        )}`}
+                                      >
+                                        {getPlaceIcon(item.lugar)}
+                                        <span>{item.lugar}</span>
+                                      </span>
+                                      <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">
+                                        <Clock className="w-2.5 h-2.5 text-blue-400" />
+                                        <span>{item.horario}</span>
+                                      </span>
+                                    </div>
+                                    <div className="text-xs sm:text-sm font-extrabold text-white truncate">
+                                      {item.nomePessoa}
+                                    </div>
+                                    {item.observacao && (
+                                      <p className="text-[10px] text-slate-400 italic truncate">
+                                        {item.observacao}
+                                      </p>
+                                    )}
                                   </div>
-                                  {item.observacao && (
-                                    <p className="text-[10px] text-slate-400 italic">
-                                      {item.observacao}
-                                    </p>
-                                  )}
                                 </div>
 
                                 <button
                                   onClick={() => handleOpenEditForm(item)}
-                                  className="p-1 rounded text-slate-500 hover:text-blue-400 hover:bg-slate-800 transition-colors"
+                                  className="p-1.5 rounded-lg text-slate-500 hover:text-blue-400 hover:bg-slate-800 transition-colors shrink-0"
                                   title="Editar"
                                 >
                                   <Edit2 className="w-3.5 h-3.5" />
@@ -601,11 +713,25 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
                                 e.stopPropagation();
                                 handleOpenEditForm(item);
                               }}
-                              className={`text-[9px] font-bold px-1.5 py-0.5 rounded border truncate flex items-center justify-between gap-1 hover:opacity-80 ${getPlaceBadgeColor(
+                              className={`text-[9px] font-bold px-1.5 py-0.5 rounded border truncate flex items-center gap-1 hover:opacity-80 ${getPlaceBadgeColor(
                                 item.lugar
                               )}`}
                               title={`${item.lugar} (${item.horario}): ${item.nomePessoa}`}
                             >
+                              {item.fotoUrl ? (
+                                <img
+                                  src={item.fotoUrl}
+                                  alt={item.nomePessoa}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setFullScreenImage({ url: item.fotoUrl!, title: item.nomePessoa });
+                                  }}
+                                  className="w-4 h-4 rounded-full object-cover border border-white/60 shrink-0 cursor-pointer hover:scale-125 transition-transform shadow-sm"
+                                  title="Ver foto em tela cheia"
+                                />
+                              ) : (
+                                <User className="w-2.5 h-2.5 shrink-0 opacity-80" />
+                              )}
                               <span className="truncate">{item.lugar}: {item.nomePessoa.split(' ')[0]}</span>
                             </div>
                           ))}
@@ -771,6 +897,78 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
                   />
                 </div>
 
+                {/* Foto da Pessoa Escalada */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                      <Camera className="w-3.5 h-3.5 text-blue-400" />
+                      <span>Foto da Pessoa</span>
+                    </label>
+                    {formData.fotoUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setFormData((prev) => ({ ...prev, fotoUrl: '' }))}
+                        className="text-[10px] font-bold text-rose-400 hover:underline flex items-center gap-1"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        <span>Remover foto</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {formData.fotoUrl ? (
+                    <div className="flex items-center gap-3 p-2.5 bg-slate-950 border border-slate-800 rounded-xl">
+                      <div
+                        className="relative shrink-0 cursor-pointer group/formphoto"
+                        onClick={() => setFullScreenImage({ url: formData.fotoUrl, title: formData.nomePessoa || 'Foto da pessoa' })}
+                        title="Clique para ver em tela cheia"
+                      >
+                        <img
+                          src={formData.fotoUrl}
+                          alt="Foto da pessoa"
+                          className="w-12 h-12 rounded-full object-cover border-2 border-blue-500/80 shadow group-hover/formphoto:scale-105 group-hover/formphoto:border-blue-400 group-hover/formphoto:ring-2 group-hover/formphoto:ring-blue-400/50 transition-all"
+                        />
+                        <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover/formphoto:opacity-100 flex items-center justify-center transition-opacity">
+                          <Maximize2 className="w-4 h-4 text-white drop-shadow-md" />
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-slate-200 truncate">Foto Carregada</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <label className="text-[11px] text-blue-400 hover:underline cursor-pointer font-extrabold inline-block">
+                            <span>Alterar Foto</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageChange}
+                              className="hidden"
+                            />
+                          </label>
+                          <span className="text-[10px] text-slate-500">• Clique na foto para expandir</span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center p-3 border-2 border-dashed border-slate-800 hover:border-blue-500/60 rounded-xl bg-slate-950/60 hover:bg-slate-950 cursor-pointer transition-all text-center group">
+                      <div className="w-8 h-8 rounded-full bg-slate-850 group-hover:bg-blue-950/80 flex items-center justify-center text-slate-400 group-hover:text-blue-400 mb-1 transition-colors">
+                        <Upload className="w-4 h-4" />
+                      </div>
+                      <span className="text-xs font-extrabold text-slate-300 group-hover:text-white">
+                        Carregar Foto da Pessoa
+                      </span>
+                      <span className="text-[10px] text-slate-500 mt-0.5">
+                        Clique aqui para enviar uma imagem (PNG, JPG)
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+                </div>
+
                 {/* Observação */}
                 <div>
                   <label className="block text-xs font-bold text-slate-300 mb-1">
@@ -820,6 +1018,40 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
                   </div>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Modal de Foto em Tela Cheia / Fullscreen Photo Lightbox */}
+        {fullScreenImage && (
+          <div
+            className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200"
+            onClick={() => setFullScreenImage(null)}
+          >
+            {/* Botão de Fechar */}
+            <button
+              onClick={() => setFullScreenImage(null)}
+              className="absolute top-4 right-4 sm:top-6 sm:right-6 p-3 rounded-full bg-slate-900/90 text-slate-200 hover:text-white hover:bg-slate-800 border border-slate-700/80 shadow-2xl transition-all hover:scale-110 z-10"
+              title="Fechar (Esc)"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            <div
+              className="relative max-w-4xl max-h-[85vh] flex flex-col items-center justify-center space-y-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={fullScreenImage.url}
+                alt={fullScreenImage.title || 'Foto em tela cheia'}
+                className="max-w-full max-h-[75vh] sm:max-h-[80vh] object-contain rounded-2xl border-2 border-slate-700/80 shadow-2xl ring-1 ring-white/10"
+              />
+              {fullScreenImage.title && (
+                <div className="bg-slate-900/90 border border-slate-700/80 px-5 py-2.5 rounded-full text-white font-extrabold text-sm sm:text-base shadow-xl flex items-center gap-2">
+                  <User className="w-4 h-4 text-blue-400" />
+                  <span>{fullScreenImage.title}</span>
+                </div>
+              )}
             </div>
           </div>
         )}

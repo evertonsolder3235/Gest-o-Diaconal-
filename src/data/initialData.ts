@@ -282,7 +282,8 @@ export const initialEscalas: ItemEscala[] = [
     lugar: 'ALTAR',
     nomePessoa: 'Diácono Carlos Silva',
     grupo: 'Homens',
-    observacao: 'Dirigente do culto de hoje'
+    observacao: 'Dirigente do culto de hoje',
+    fotoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200'
   },
   {
     id: 'e-today-2',
@@ -291,7 +292,8 @@ export const initialEscalas: ItemEscala[] = [
     lugar: 'ESTACIONAMENTO',
     nomePessoa: 'Pb. Roberto Santos',
     grupo: 'Homens',
-    observacao: 'Organização do trânsito e recepção'
+    observacao: 'Organização do trânsito e recepção',
+    fotoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200'
   },
   {
     id: 'e-today-3',
@@ -300,7 +302,8 @@ export const initialEscalas: ItemEscala[] = [
     lugar: 'RECEPÇÃO',
     nomePessoa: 'Irmã Maria Fernandes',
     grupo: 'Mulheres',
-    observacao: 'Recepção e Acolhimento de hoje'
+    observacao: 'Recepção e Acolhimento de hoje',
+    fotoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200'
   },
   {
     id: 'e-today-4',
@@ -309,7 +312,8 @@ export const initialEscalas: ItemEscala[] = [
     lugar: 'INTERCESSÃO',
     nomePessoa: 'Ana Paula Souza',
     grupo: 'Mulheres',
-    observacao: 'Sala de Oração'
+    observacao: 'Sala de Oração',
+    fotoUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200'
   },
   {
     id: 'e-1',

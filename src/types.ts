@@ -138,6 +138,7 @@ export interface ItemEscala {
   nomePessoa: string;
   grupo: 'Homens' | 'Mulheres';
   observacao?: string;
+  fotoUrl?: string; // URL or base64 photo of the scheduled person
 }
 
 export interface ToastMessage {
