@@ -90,11 +90,13 @@ export const AvisosView: React.FC = () => {
   };
 
   const handleDelete = (item: Aviso) => {
-    askConfirmDelete(
-      'Excluir Aviso',
-      `Deseja realmente excluir o comunicado "${item.titulo}"?`,
-      () => deleteAviso(item.id)
-    );
+    requestAdminAuth(() => {
+      askConfirmDelete(
+        'Excluir Aviso',
+        `Deseja realmente excluir o comunicado "${item.titulo}"?`,
+        () => deleteAviso(item.id)
+      );
+    }, 'Excluir Aviso');
   };
 
   const toggleSelectItem = (id: string) => {

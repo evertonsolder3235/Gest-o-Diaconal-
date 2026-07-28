@@ -57,16 +57,14 @@ export const VisitantesView: React.FC = () => {
   };
 
   const openEditModal = (item: Visitante) => {
-    requestAdminAuth(() => {
-      setEditingItem(item);
-      setNome(item.nome);
-      setTelefone(item.telefone || '');
-      setEmail(item.email || '');
-      setDataVisita(item.dataVisita || new Date().toISOString().slice(0, 10));
-      setStatus(item.status);
-      setObservacao(item.observacao || '');
-      setIsModalOpen(true);
-    }, 'Editar Visitante');
+    setEditingItem(item);
+    setNome(item.nome);
+    setTelefone(item.telefone || '');
+    setEmail(item.email || '');
+    setDataVisita(item.dataVisita || new Date().toISOString().slice(0, 10));
+    setStatus(item.status);
+    setObservacao(item.observacao || '');
+    setIsModalOpen(true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -97,11 +95,13 @@ export const VisitantesView: React.FC = () => {
   };
 
   const handleDelete = (item: Visitante) => {
-    askConfirmDelete(
-      'Excluir Visitante',
-      `Deseja realmente excluir o cadastro do visitante "${item.nome}"? Esta ação não poderá ser desfeita.`,
-      () => deleteVisitante(item.id)
-    );
+    requestAdminAuth(() => {
+      askConfirmDelete(
+        'Excluir Visitante',
+        `Deseja realmente excluir o cadastro do visitante "${item.nome}"? Esta ação não poderá ser desfeita.`,
+        () => deleteVisitante(item.id)
+      );
+    }, 'Excluir Visitante');
   };
 
   const toggleSelectItem = (id: string) => {
@@ -123,14 +123,16 @@ export const VisitantesView: React.FC = () => {
 
   const handleDeleteSelected = () => {
     if (selectedIds.length === 0) return;
-    askConfirmDelete(
-      'Excluir Visitantes Selecionados',
-      `Deseja realmente excluir os ${selectedIds.length} visitante(s) selecionados? Esta ação não poderá ser desfeita.`,
-      () => {
-        deleteMultipleVisitantes(selectedIds);
-        setSelectedIds([]);
-      }
-    );
+    requestAdminAuth(() => {
+      askConfirmDelete(
+        'Excluir Visitantes Selecionados',
+        `Deseja realmente excluir os ${selectedIds.length} visitante(s) selecionados? Esta ação não poderá ser desfeita.`,
+        () => {
+          deleteMultipleVisitantes(selectedIds);
+          setSelectedIds([]);
+        }
+      );
+    }, 'Excluir Visitantes Selecionados');
   };
 
   // WhatsApp Helper Message
