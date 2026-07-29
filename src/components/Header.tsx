@@ -10,11 +10,7 @@ import {
   Heart,
   Megaphone,
   Wallet,
-  Settings,
-  Lock,
-  Unlock,
-  LogOut,
-  Download
+  Settings
 } from 'lucide-react';
 
 export const Header: React.FC = () => {
@@ -22,15 +18,9 @@ export const Header: React.FC = () => {
     config,
     activeTab,
     setActiveTab,
-    isAdminUnlocked,
-    lockAdmin,
-    requestAdminAuth,
-    logout,
     visitantes,
     pedidos,
-    avisos,
-    installPWA,
-    isStandalone
+    avisos
   } = useApp();
 
   const getTabTitle = () => {
@@ -79,49 +69,6 @@ export const Header: React.FC = () => {
                 {getTabTitle()}
               </p>
             </div>
-          </div>
-
-          {/* Right side admin status & logout buttons */}
-          <div className="flex items-center gap-2">
-            {!isStandalone && (
-              <button
-                onClick={installPWA}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-md shadow-blue-900/30 transition-all"
-                title="Instalar atalho do aplicativo no celular ou computador"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Instalar App</span>
-              </button>
-            )}
-
-            {isAdminUnlocked ? (
-              <button
-                onClick={lockAdmin}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 text-xs font-semibold transition-all"
-                title="Acesso de edição liberado. Clique para bloquear."
-              >
-                <Unlock className="w-3.5 h-3.5" />
-                <span className="hidden md:inline">Admin Liberado</span>
-              </button>
-            ) : (
-              <button
-                onClick={() => requestAdminAuth(() => {}, 'Autenticação Administrativa')}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-400 hover:text-slate-200 hover:bg-slate-700 text-xs font-semibold transition-all"
-                title="Edição protegida por senha. Clique para autenticar."
-              >
-                <Lock className="w-3.5 h-3.5" />
-                <span className="hidden md:inline">Protegido</span>
-              </button>
-            )}
-
-            <button
-              onClick={logout}
-              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-800/80 hover:bg-rose-950/40 border border-slate-700/80 hover:border-rose-900/50 text-slate-400 hover:text-rose-300 text-xs font-semibold transition-all"
-              title="Sair do sistema"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden lg:inline">Sair</span>
-            </button>
           </div>
         </div>
 
