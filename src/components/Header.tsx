@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { ChurchLogo } from './ChurchLogo';
+import { InstallAppModal } from './modals/InstallAppModal';
 import { ViewTab } from '../types';
 import {
   LayoutDashboard,
@@ -13,10 +14,12 @@ import {
   Settings,
   Lock,
   Unlock,
-  LogOut
+  LogOut,
+  Download
 } from 'lucide-react';
 
 export const Header: React.FC = () => {
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
   const {
     config,
     activeTab,
@@ -27,7 +30,10 @@ export const Header: React.FC = () => {
     logout,
     visitantes,
     pedidos,
-    avisos
+    avisos,
+    isStandalone,
+    deferredPrompt,
+    installPWA
   } = useApp();
 
   const getTabTitle = () => {
@@ -80,6 +86,24 @@ export const Header: React.FC = () => {
 
           {/* Right side admin status & logout buttons */}
           <div className="flex items-center gap-2">
+            {!isStandalone && (
+              <button
+                onClick={() => {
+                  if (deferredPrompt) {
+                    installPWA();
+                  } else {
+                    setIsInstallModalOpen(true);
+                  }
+                }}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold shadow-md shadow-blue-900/30 transition-all transform hover:scale-[1.03] active:scale-[0.97]"
+                title="Baixar atalho do aplicativo para a tela inicial"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Baixar App</span>
+                <span className="sm:hidden">App</span>
+              </button>
+            )}
+
             {isAdminUnlocked ? (
               <button
                 onClick={lockAdmin}
@@ -110,6 +134,11 @@ export const Header: React.FC = () => {
             </button>
           </div>
         </div>
+
+        <InstallAppModal
+          isOpen={isInstallModalOpen}
+          onClose={() => setIsInstallModalOpen(false)}
+        />
 
         {/* Desktop Top Navigation Bar */}
         <nav className="hidden lg:flex items-center gap-1 pt-2 border-t border-slate-800/60 overflow-x-auto no-scrollbar">
