@@ -357,17 +357,26 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setDeferredPrompt(e);
     };
 
+    const handleAppInstalled = () => {
+      setIsStandalone(true);
+      setDeferredPrompt(null);
+      showToast('success', 'Aplicativo instalado na tela inicial com sucesso!');
+    };
+
     const checkStandalone = () => {
-      const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches ||
+      const isStandaloneMode =
+        window.matchMedia('(display-mode: standalone)').matches ||
         (window.navigator as any).standalone === true;
       setIsStandalone(isStandaloneMode);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    window.addEventListener('appinstalled', handleAppInstalled);
     checkStandalone();
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+      window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
 
@@ -702,6 +711,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       deferredPrompt.userChoice.then((choiceResult: any) => {
         if (choiceResult.outcome === 'accepted') {
           showToast('success', 'Aplicativo instalado com sucesso!');
+          setIsStandalone(true);
         } else {
           showToast('info', 'Instalação cancelada.');
         }
