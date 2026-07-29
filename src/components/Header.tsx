@@ -13,7 +13,9 @@ import {
   Settings,
   Lock,
   Unlock,
-  LogOut
+  LogOut,
+  Maximize,
+  Minimize
 } from 'lucide-react';
 
 export const Header: React.FC = () => {
@@ -29,6 +31,26 @@ export const Header: React.FC = () => {
     pedidos,
     avisos
   } = useApp();
+
+  const [isFullscreen, setIsFullscreen] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+  };
 
   const getTabTitle = () => {
     switch (activeTab) {
@@ -69,7 +91,7 @@ export const Header: React.FC = () => {
                   {config.nomeIgreja}
                 </h1>
                 <span className="hidden sm:inline-block px-2.5 py-0.5 text-[10px] font-bold bg-blue-900/50 text-blue-300 border border-blue-700/50 rounded-full uppercase tracking-wider">
-                  Gestão Diaconal
+                  {config.subtitulo || 'Gestão Diaconal'}
                 </span>
               </div>
               <p className="text-xs text-slate-400 font-medium">
@@ -80,6 +102,15 @@ export const Header: React.FC = () => {
 
           {/* Right side admin status & logout buttons */}
           <div className="flex items-center gap-2">
+            <button
+              onClick={toggleFullscreen}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700/80 text-slate-300 text-xs font-semibold transition-all"
+              title={isFullscreen ? 'Sair da tela cheia' : 'Modo Tela Cheia (Oculta barra do navegador)'}
+            >
+              {isFullscreen ? <Minimize className="w-3.5 h-3.5 text-blue-400" /> : <Maximize className="w-3.5 h-3.5 text-blue-400" />}
+              <span className="hidden sm:inline">{isFullscreen ? 'Sair Tela Cheia' : 'Tela Cheia'}</span>
+            </button>
+
             {isAdminUnlocked ? (
               <button
                 onClick={lockAdmin}
