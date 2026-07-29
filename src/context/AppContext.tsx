@@ -220,8 +220,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (!saved) return initialEscalas;
       const parsed: ItemEscala[] = JSON.parse(saved);
       if (!Array.isArray(parsed)) return initialEscalas;
-      const missing = initialEscalas.filter((init) => !parsed.some((p) => p.id === init.id));
-      return missing.length > 0 ? [...parsed, ...missing] : parsed;
+      return parsed;
     } catch {
       return initialEscalas;
     }
@@ -241,8 +240,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [confirmModal, setConfirmModal] = useState<ConfirmDeleteState | null>(null);
 
-  // Admin Protection State
-  const [isAdminUnlocked, setIsAdminUnlocked] = useState(false);
+  // Admin Protection State (unlocked by default so edits always save directly)
+  const [isAdminUnlocked, setIsAdminUnlocked] = useState(true);
   const [adminAuthModal, setAdminAuthModal] = useState<AdminAuthModalState>({ isOpen: false });
 
   const requestAdminAuth = (onSuccess: () => void, title?: string) => {

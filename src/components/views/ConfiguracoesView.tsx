@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ChurchLogo } from '../ChurchLogo';
 import {
@@ -40,6 +40,17 @@ export const ConfiguracoesView: React.FC = () => {
   const [telefone, setTelefone] = useState(config.telefone);
   const [email, setEmail] = useState(config.email);
   const [chavePix, setChavePix] = useState(config.chavePix || '');
+
+  // Keep local fields in sync with context updates/restores
+  useEffect(() => {
+    setNomeIgreja(config.nomeIgreja || '');
+    setSubtitulo(config.subtitulo || '');
+    setPastorPresidente(config.pastorPresidente || '');
+    setEndereco(config.endereco || '');
+    setTelefone(config.telefone || '');
+    setEmail(config.email || '');
+    setChavePix(config.chavePix || '');
+  }, [config]);
 
   const handleSaveConfig = (e: React.FormEvent) => {
     e.preventDefault();
