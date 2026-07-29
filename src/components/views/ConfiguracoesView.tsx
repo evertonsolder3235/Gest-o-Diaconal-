@@ -266,65 +266,7 @@ export const ConfiguracoesView: React.FC = () => {
         </form>
       </div>
 
-      {/* 3. PWA & FULLSCREEN SETUP CARD */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-        <div className="flex items-center gap-2.5 mb-2">
-          <Smartphone className="w-5 h-5 text-blue-400" />
-          <h3 className="font-bold text-slate-100 text-sm">Aplicativo Sem Barra de URL no Smartphone</h3>
-        </div>
-        <p className="text-xs text-slate-400 mb-4">
-          Para o aplicativo rodar em tela cheia no smartphone sem a barra de endereços do navegador:
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-          {/* Android instructions */}
-          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800/80">
-            <h4 className="font-bold text-slate-200 mb-2 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-              No Android (Chrome)
-            </h4>
-            <ol className="list-decimal list-inside space-y-1.5 text-slate-400">
-              <li>Abra o aplicativo no Chrome.</li>
-              <li>Toque nos <strong>três pontinhos (⋮)</strong> no canto superior direito.</li>
-              <li>Selecione <strong>"Adicionar à Tela inicial"</strong> ou <strong>"Instalar aplicativo"</strong>.</li>
-              <li>Abra o novo ícone criado na tela do seu celular.</li>
-            </ol>
-          </div>
-
-          {/* iPhone instructions */}
-          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800/80">
-            <h4 className="font-bold text-slate-200 mb-2 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-blue-400"></span>
-              No iPhone (Safari)
-            </h4>
-            <ol className="list-decimal list-inside space-y-1.5 text-slate-400">
-              <li>Abra o aplicativo no Safari.</li>
-              <li>Toque no botão de <strong>Compartilhar (quadrado com seta)</strong>.</li>
-              <li>Role para baixo e toque em <strong>"Adicionar à Tela de Início"</strong>.</li>
-              <li>Abra o aplicativo pelo ícone na tela inicial.</li>
-            </ol>
-          </div>
-        </div>
-
-        <div className="mt-4 pt-4 border-t border-slate-800/60 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-xs text-slate-300">
-            <Info className="w-4 h-4 text-blue-400 shrink-0" />
-            <span>Você também pode clicar no botão <strong>"Tela Cheia"</strong> no topo da página para ocultar a barra de navegação no navegador.</span>
-          </div>
-
-          {deferredPrompt && (
-            <button
-              onClick={installPWA}
-              className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2"
-            >
-              <Smartphone className="w-4 h-4" />
-              <span>Instalar Aplicativo Agora</span>
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* 4. BACKUP & DATA MANAGEMENT */}
+      {/* 3. BACKUP & DATA MANAGEMENT */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
         <div className="flex items-center gap-2.5 mb-2">
           <HardDrive className="w-5 h-5 text-blue-400" />
