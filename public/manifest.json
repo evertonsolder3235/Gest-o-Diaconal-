@@ -7,6 +7,7 @@
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
   "display": "standalone",
+  "display_override": ["fullscreen", "standalone", "minimal-ui"],
   "orientation": "portrait-primary",
   "description": "Aplicativo PWA para gestão ministerial de diaconia, obreiros, visitantes, orações e finanças da igreja.",
   "categories": ["productivity", "utilities", "lifestyle"],
