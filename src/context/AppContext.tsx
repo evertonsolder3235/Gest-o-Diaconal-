@@ -412,12 +412,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       return timer;
     };
 
-    let timerId: NodeJS.Timeout | undefined;
+    let timerId: NodeJS.Timeout | undefined = checkDismissalAndPrompt();
 
     const handleBeforeInstall = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      timerId = checkDismissalAndPrompt();
     };
 
     const handleAppInstalled = () => {
@@ -432,10 +431,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstall);
     window.addEventListener('appinstalled', handleAppInstalled);
-
-    if (isIOSDevice) {
-      timerId = checkDismissalAndPrompt();
-    }
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
