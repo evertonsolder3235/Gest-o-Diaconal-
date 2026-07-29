@@ -28,6 +28,9 @@ export const ConfiguracoesView: React.FC = () => {
     deferredPrompt,
     installPWA,
     isStandalone,
+    isInstalled,
+    setShowInstallModal,
+    isIOS,
     showToast,
     requestAdminAuth
   } = useApp();
@@ -79,12 +82,57 @@ export const ConfiguracoesView: React.FC = () => {
             <Settings className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-xl font-extrabold text-slate-100">Configurações</h2>
+            <h2 className="text-xl font-extrabold text-slate-100">Configurações & PWA</h2>
             <p className="text-xs text-slate-400 mt-0.5">
-              Identidade da igreja e gerenciamento de dados de backup
+              Identidade da igreja, instalação de aplicativo e dados de backup
             </p>
           </div>
         </div>
+      </div>
+
+      {/* 1. PWA INSTALLATION STATUS */}
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div className="flex items-center gap-2.5">
+            <Smartphone className="w-5 h-5 text-blue-400" />
+            <div>
+              <h3 className="font-bold text-slate-100 text-sm">Aplicativo Instalável (PWA)</h3>
+              <p className="text-xs text-slate-400">Instale no celular para acesso direto em tela cheia e offline</p>
+            </div>
+          </div>
+
+          <span
+            className={`self-start sm:self-auto px-3 py-1 rounded-full text-xs font-bold shrink-0 ${
+              isStandalone || isInstalled
+                ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                : 'bg-blue-950 text-blue-300 border border-blue-800'
+            }`}
+          >
+            {isStandalone
+              ? '✓ Modo App Standalone'
+              : isInstalled
+              ? '✓ Aplicativo Instalado'
+              : 'Pronto para Instalar'}
+          </span>
+        </div>
+
+        {!(isStandalone || isInstalled) && (
+          <div className="p-4 rounded-xl bg-blue-950/40 border border-blue-800/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="space-y-1">
+              <h4 className="text-xs font-bold text-blue-200">Experiência de App Nativo</h4>
+              <p className="text-[11px] text-blue-300/90 leading-relaxed">
+                Clique no botão para abrir a janela oficial de instalação do aplicativo no seu dispositivo.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowInstallModal(true)}
+              className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-lg shadow-blue-900/40 shrink-0 flex items-center gap-2 transition-all active:scale-95"
+            >
+              <Download className="w-4 h-4" />
+              <span>Instalar Aplicativo</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* 1. CHURCH IDENTITY CONFIGURATION */}

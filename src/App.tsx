@@ -5,6 +5,7 @@ import { BottomNav } from './components/BottomNav';
 import { ToastContainer } from './components/ToastContainer';
 import { ConfirmModal } from './components/ConfirmModal';
 import { AdminPasswordModal } from './components/AdminPasswordModal';
+import { PwaInstallModal } from './components/PwaInstallModal';
 
 import { DashboardView } from './components/views/DashboardView';
 import { VisitantesView } from './components/views/VisitantesView';
@@ -41,10 +42,11 @@ const MainLayout: React.FC = () => {
       {/* Mobile Bottom Navigation */}
       <BottomNav />
 
-      {/* Global Feedback Toasts, Deletion Confirmation Modal & Admin Password Protection */}
+      {/* Global Feedback Toasts, Deletion Confirmation Modal, Admin Password & PWA Install Modal */}
       <ToastContainer />
       <ConfirmModal />
       <AdminPasswordModal />
+      <PwaInstallModal />
     </div>
   );
 };
