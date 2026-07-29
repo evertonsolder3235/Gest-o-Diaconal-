@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gestao-diaconal-v4';
+const CACHE_NAME = 'gestao-diaconal-v3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -35,14 +35,8 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(event.request.url);
 
-  if (!url.protocol.startsWith('http')) return;
-
-  // Network-first for html and scripts
-  if (
-    event.request.mode === 'navigate' ||
-    url.pathname.endsWith('.js') ||
-    url.pathname.endsWith('.css')
-  ) {
+  // Network-first for navigation & JS files to guarantee fresh code
+  if (event.request.mode === 'navigate' || url.pathname.endsWith('.js') || url.pathname.endsWith('.tsx') || url.pathname.endsWith('.css')) {
     event.respondWith(
       fetch(event.request)
         .then((networkResponse) => {
@@ -61,7 +55,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Stale-while-revalidate for images/fonts/other static assets
+  // Stale-while-revalidate for static assets
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const fetchPromise = fetch(event.request)

@@ -354,36 +354,20 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   useEffect(() => {
     const handleBeforeInstall = (e: any) => {
       e.preventDefault();
-      (window as any).deferredPWAInstallPrompt = e;
       setDeferredPrompt(e);
     };
 
-    const handleAppInstalled = () => {
-      setIsStandalone(true);
-      setDeferredPrompt(null);
-      (window as any).deferredPWAInstallPrompt = null;
-      showToast('success', 'Aplicativo instalado na tela inicial com sucesso!');
-    };
-
     const checkStandalone = () => {
-      const isStandaloneMode =
-        window.matchMedia('(display-mode: standalone)').matches ||
+      const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches ||
         (window.navigator as any).standalone === true;
       setIsStandalone(isStandaloneMode);
     };
 
-    // Check if event was captured before React mounted
-    if ((window as any).deferredPWAInstallPrompt) {
-      setDeferredPrompt((window as any).deferredPWAInstallPrompt);
-    }
-
     window.addEventListener('beforeinstallprompt', handleBeforeInstall);
-    window.addEventListener('appinstalled', handleAppInstalled);
     checkStandalone();
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
-      window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
 
@@ -713,21 +697,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const installPWA = () => {
-    const promptEvent = deferredPrompt || (window as any).deferredPWAInstallPrompt;
-    if (promptEvent) {
-      promptEvent.prompt();
-      promptEvent.userChoice.then((choiceResult: any) => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult: any) => {
         if (choiceResult.outcome === 'accepted') {
           showToast('success', 'Aplicativo instalado com sucesso!');
-          setIsStandalone(true);
         } else {
           showToast('info', 'Instalação cancelada.');
         }
         setDeferredPrompt(null);
-        (window as any).deferredPWAInstallPrompt = null;
       });
     } else {
-      showToast('info', 'Abra o menu do navegador (⋮) e toque em "Instalar Aplicativo" ou "Adicionar à Tela Inicial".');
+      showToast('info', 'Para instalar no celular, use a opção "Adicionar à Tela Inicial" do navegador.');
     }
   };
 

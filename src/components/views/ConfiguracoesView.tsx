@@ -79,70 +79,10 @@ export const ConfiguracoesView: React.FC = () => {
             <Settings className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-xl font-extrabold text-slate-100">Configurações & PWA</h2>
+            <h2 className="text-xl font-extrabold text-slate-100">Configurações</h2>
             <p className="text-xs text-slate-400 mt-0.5">
-              Identidade da igreja, dados de backup e instalação do aplicativo
+              Identidade da igreja e gerenciamento de dados de backup
             </p>
-          </div>
-        </div>
-      </div>
-
-      {/* PWA STATUS & INSTALLATION CARD */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2.5">
-            <Smartphone className="w-5 h-5 text-blue-400" />
-            <h3 className="font-bold text-slate-100 text-sm">Aplicativo PWA Instalável</h3>
-          </div>
-
-          <span
-            className={`px-3 py-1 rounded-full text-xs font-bold ${
-              isStandalone
-                ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
-                : 'bg-blue-950 text-blue-300 border border-blue-800'
-            }`}
-          >
-            {isStandalone ? '✓ Executando em Modo App' : 'Navegador Web / PWA Próximo'}
-          </span>
-        </div>
-
-        <p className="text-xs text-slate-300 leading-relaxed mb-4">
-          O <strong>Gestão Diaconal</strong> pode ser instalado no seu celular, tablet ou computador como um aplicativo nativo, com carregamento ultrarrápido e funcionamento offline.
-        </p>
-
-        {!isStandalone && (
-          <div className="mb-5 p-4 rounded-xl bg-blue-950/40 border border-blue-800/50 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div>
-              <h4 className="text-xs font-bold text-blue-200">Instalar com um clique</h4>
-              <p className="text-[11px] text-blue-300">
-                Adiciona o ícone do Gestão Diaconal à sua tela inicial sem necessidade de loja de aplicativos.
-              </p>
-            </div>
-            <button
-              onClick={installPWA}
-              className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-lg shadow-blue-900/40 shrink-0 flex items-center gap-2 cursor-pointer"
-            >
-              <Download className="w-4 h-4" />
-              <span>Instalar Agora</span>
-            </button>
-          </div>
-        )}
-
-        {/* Device installation tips */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-xs text-slate-300">
-          <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
-            <strong className="block text-slate-200 font-bold mb-1">Android (Chrome)</strong>
-            <span>Clique nos 3 pontos do navegador (⋮) e selecione <em>"Adicionar à Tela Inicial"</em> ou <em>"Instalar aplicativo"</em>.</span>
-          </div>
-
-          <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
-            <strong className="block text-slate-200 font-bold mb-1">iPhone / iPad (Safari)</strong>
-            <span>Toque no botão <em>Compartilhar</em> (ícone com seta) e escolha <em>"Adicionar à Tela de Início"</em>.</span>
-          </div>
-
-          <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
-            <strong className="block text-slate-200 font-bold mb-1">Computador (PC/Mac)</strong>
-            <span>Clique no ícone de instalação (⊕) no canto direito da barra de endereço do Chrome ou Edge.</span>
           </div>
         </div>
       </div>
