@@ -8,42 +8,12 @@
   "theme_color": "#0f172a",
   "display": "standalone",
   "display_override": ["fullscreen", "standalone", "minimal-ui"],
-  "orientation": "portrait",
-  "description": "Instale este aplicativo e tenha acesso rápido diretamente pela tela inicial do seu celular.",
+  "orientation": "portrait-primary",
+  "description": "Aplicativo PWA para gestão ministerial de diaconia, obreiros, visitantes, orações e finanças da igreja.",
   "categories": ["productivity", "utilities", "lifestyle"],
   "lang": "pt-BR",
   "prefer_related_applications": false,
   "icons": [
-    {
-      "src": "/icon-72.png",
-      "type": "image/png",
-      "sizes": "72x72",
-      "purpose": "any"
-    },
-    {
-      "src": "/icon-96.png",
-      "type": "image/png",
-      "sizes": "96x96",
-      "purpose": "any"
-    },
-    {
-      "src": "/icon-128.png",
-      "type": "image/png",
-      "sizes": "128x128",
-      "purpose": "any"
-    },
-    {
-      "src": "/icon-144.png",
-      "type": "image/png",
-      "sizes": "144x144",
-      "purpose": "any"
-    },
-    {
-      "src": "/icon-152.png",
-      "type": "image/png",
-      "sizes": "152x152",
-      "purpose": "any"
-    },
     {
       "src": "/icon-192.png",
       "type": "image/png",
@@ -51,16 +21,10 @@
       "purpose": "any"
     },
     {
-      "src": "/icon-192-maskable.png",
+      "src": "/icon-192.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "maskable"
-    },
-    {
-      "src": "/icon-384.png",
-      "type": "image/png",
-      "sizes": "384x384",
-      "purpose": "any"
     },
     {
       "src": "/icon-512.png",
@@ -69,7 +33,7 @@
       "purpose": "any"
     },
     {
-      "src": "/icon-512-maskable.png",
+      "src": "/icon-512.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "maskable"

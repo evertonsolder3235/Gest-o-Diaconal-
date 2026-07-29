@@ -108,11 +108,7 @@ if (!fs.existsSync(publicDir)) {
   fs.mkdirSync(publicDir, { recursive: true });
 }
 
-const sizes = [72, 96, 128, 144, 152, 180, 192, 384, 512];
-sizes.forEach(size => {
-  fs.writeFileSync(path.join(publicDir, `icon-${size}.png`), generatePngIcon(size));
-});
-fs.writeFileSync(path.join(publicDir, 'icon-192-maskable.png'), generatePngIcon(192));
-fs.writeFileSync(path.join(publicDir, 'icon-512-maskable.png'), generatePngIcon(512));
+fs.writeFileSync(path.join(publicDir, 'icon-192.png'), generatePngIcon(192));
+fs.writeFileSync(path.join(publicDir, 'icon-512.png'), generatePngIcon(512));
 fs.writeFileSync(path.join(publicDir, 'apple-touch-icon.png'), generatePngIcon(180));
-console.log('Generated PNG icons for all sizes successfully!');
+console.log('Generated PNG icons successfully!');

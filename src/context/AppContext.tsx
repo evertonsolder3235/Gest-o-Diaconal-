@@ -135,11 +135,6 @@ interface AppContextType {
   deferredPrompt: any;
   installPWA: () => void;
   isStandalone: boolean;
-  isInstalled: boolean;
-  showInstallModal: boolean;
-  setShowInstallModal: (show: boolean) => void;
-  dismissInstallModal: () => void;
-  isIOS: boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -289,15 +284,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isStandalone, setIsStandalone] = useState<boolean>(false);
-  const [isInstalled, setIsInstalled] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem('pwa_installed') === 'true';
-    } catch {
-      return false;
-    }
-  });
-  const [showInstallModal, setShowInstallModal] = useState<boolean>(false);
-  const [isIOS, setIsIOS] = useState<boolean>(false);
 
   // Sync to LocalStorage
   useEffect(() => {
@@ -364,78 +350,24 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     });
   };
 
-  // Handle PWA Installation & Smart Prompting
+  // Handle PWA Install Prompt
   useEffect(() => {
-    // Detect iOS
-    const userAgent = window.navigator.userAgent || '';
-    const isIOSDevice = /iPhone|iPad|iPod/i.test(userAgent) && !(window as any).MSStream;
-    setIsIOS(isIOSDevice);
-
-    const checkStandalone = () => {
-      const isStandaloneMode =
-        window.matchMedia('(display-mode: standalone)').matches ||
-        (window.navigator as any).standalone === true;
-      setIsStandalone(isStandaloneMode);
-      if (isStandaloneMode) {
-        setIsInstalled(true);
-        try {
-          localStorage.setItem('pwa_installed', 'true');
-        } catch {}
-      }
-    };
-
-    checkStandalone();
-
-    const checkDismissalAndPrompt = () => {
-      const isStandaloneMode =
-        window.matchMedia('(display-mode: standalone)').matches ||
-        (window.navigator as any).standalone === true;
-      const alreadyInstalled =
-        isStandaloneMode || localStorage.getItem('pwa_installed') === 'true';
-
-      if (alreadyInstalled) return undefined;
-
-      const dismissedUntilStr = localStorage.getItem('pwa_dismissed_until');
-      if (dismissedUntilStr) {
-        const dismissedUntil = parseInt(dismissedUntilStr, 10);
-        if (!isNaN(dismissedUntil) && Date.now() < dismissedUntil) {
-          // Still within 7-day dismissal window
-          return undefined;
-        }
-      }
-
-      // Automatically display popup modal after 2.5s delay
-      const timer = setTimeout(() => {
-        setShowInstallModal(true);
-      }, 2500);
-
-      return timer;
-    };
-
-    let timerId: NodeJS.Timeout | undefined = checkDismissalAndPrompt();
-
     const handleBeforeInstall = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
     };
 
-    const handleAppInstalled = () => {
-      setIsInstalled(true);
-      setShowInstallModal(false);
-      setDeferredPrompt(null);
-      try {
-        localStorage.setItem('pwa_installed', 'true');
-      } catch {}
-      showToast('success', 'Aplicativo instalado com sucesso!');
+    const checkStandalone = () => {
+      const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches ||
+        (window.navigator as any).standalone === true;
+      setIsStandalone(isStandaloneMode);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstall);
-    window.addEventListener('appinstalled', handleAppInstalled);
+    checkStandalone();
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
-      window.removeEventListener('appinstalled', handleAppInstalled);
-      if (timerId) clearTimeout(timerId);
     };
   }, []);
 
@@ -764,36 +696,20 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     showToast('info', 'Dados originais restaurados com sucesso.');
   };
 
-  const installPWA = async () => {
+  const installPWA = () => {
     if (deferredPrompt) {
-      try {
-        deferredPrompt.prompt();
-        const choiceResult = await deferredPrompt.userChoice;
-        if (choiceResult && choiceResult.outcome === 'accepted') {
-          setIsInstalled(true);
-          setShowInstallModal(false);
-          try {
-            localStorage.setItem('pwa_installed', 'true');
-          } catch {}
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult: any) => {
+        if (choiceResult.outcome === 'accepted') {
           showToast('success', 'Aplicativo instalado com sucesso!');
         } else {
-          showToast('info', 'Instalação cancelada pelo usuário.');
+          showToast('info', 'Instalação cancelada.');
         }
-      } catch (e) {
-        console.error('Erro no prompt de instalação PWA:', e);
-      }
-      setDeferredPrompt(null);
+        setDeferredPrompt(null);
+      });
     } else {
-      setShowInstallModal(true);
+      showToast('info', 'Para instalar no celular, use a opção "Adicionar à Tela Inicial" do navegador.');
     }
-  };
-
-  const dismissInstallModal = () => {
-    setShowInstallModal(false);
-    try {
-      const sevenDaysFromNow = Date.now() + 7 * 24 * 60 * 60 * 1000;
-      localStorage.setItem('pwa_dismissed_until', sevenDaysFromNow.toString());
-    } catch {}
   };
 
   return (
@@ -864,12 +780,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         resetDemoData,
         deferredPrompt,
         installPWA,
-        isStandalone,
-        isInstalled,
-        showInstallModal,
-        setShowInstallModal,
-        dismissInstallModal,
-        isIOS
+        isStandalone
       }}
     >
       {children}

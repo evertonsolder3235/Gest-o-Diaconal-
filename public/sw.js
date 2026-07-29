@@ -1,18 +1,10 @@
-const CACHE_NAME = 'gestao-diaconal-v4';
+const CACHE_NAME = 'gestao-diaconal-v3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/icon-72.png',
-  '/icon-96.png',
-  '/icon-128.png',
-  '/icon-144.png',
-  '/icon-152.png',
   '/icon-192.png',
-  '/icon-192-maskable.png',
-  '/icon-384.png',
   '/icon-512.png',
-  '/icon-512-maskable.png',
   '/apple-touch-icon.png'
 ];
 
