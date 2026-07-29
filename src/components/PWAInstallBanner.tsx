@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { Download, X, Smartphone, CheckCircle2 } from 'lucide-react';
+import { Download, X, Smartphone, CheckCircle2, Info, ChevronDown, ChevronUp } from 'lucide-react';
 
 export const PWAInstallBanner: React.FC = () => {
   const { deferredPrompt, installPWA, isStandalone } = useApp();
   const [dismissed, setDismissed] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
-  const [showIOSGuide, setShowIOSGuide] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
 
   useEffect(() => {
     // Check if device is iOS (iPhone/iPad/iPod)
@@ -26,15 +26,22 @@ export const PWAInstallBanner: React.FC = () => {
     sessionStorage.setItem('pwa_banner_dismissed', 'true');
   };
 
+  const handleInstallClick = () => {
+    const hasPrompt = deferredPrompt || (window as any).deferredPWAInstallPrompt;
+    if (hasPrompt) {
+      installPWA();
+    } else {
+      setShowGuide(true);
+      installPWA();
+    }
+  };
+
   // Do not show if already in standalone app mode or dismissed
   if (isStandalone || dismissed) {
     return null;
   }
 
-  // Show banner if deferredPrompt is available (Chrome/Edge/Android) or if on iOS Safari
-  if (!deferredPrompt && !isIOS) {
-    return null;
-  }
+  const hasPrompt = Boolean(deferredPrompt || (window as any).deferredPWAInstallPrompt);
 
   return (
     <div className="fixed bottom-20 sm:bottom-6 left-4 right-4 max-w-md mx-auto z-50 animate-in fade-in slide-in-from-bottom-5 duration-300">
@@ -66,23 +73,24 @@ export const PWAInstallBanner: React.FC = () => {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2 pt-1">
-          {deferredPrompt ? (
+          <button
+            onClick={handleInstallClick}
+            className="flex-1 py-2.5 px-4 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-blue-900/40 flex items-center justify-center gap-2 transition-all cursor-pointer"
+          >
+            <Download className="w-4 h-4" />
+            <span>Instalar Agora</span>
+          </button>
+
+          {!hasPrompt && (
             <button
-              onClick={installPWA}
-              className="flex-1 py-2.5 px-4 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-blue-900/40 flex items-center justify-center gap-2 transition-all cursor-pointer"
+              onClick={() => setShowGuide(!showGuide)}
+              className="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition-colors flex items-center gap-1 shrink-0"
+              title="Instruções de instalação"
             >
-              <Download className="w-4 h-4" />
-              <span>Instalar Agora</span>
+              <Info className="w-4 h-4 text-blue-400" />
+              {showGuide ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             </button>
-          ) : isIOS ? (
-            <button
-              onClick={() => setShowIOSGuide(!showIOSGuide)}
-              className="flex-1 py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-blue-900/40 flex items-center justify-center gap-2 transition-all cursor-pointer"
-            >
-              <Download className="w-4 h-4" />
-              <span>Como Instalar no iPhone</span>
-            </button>
-          ) : null}
+          )}
 
           <button
             onClick={handleDismiss}
@@ -92,17 +100,31 @@ export const PWAInstallBanner: React.FC = () => {
           </button>
         </div>
 
-        {/* iOS installation instructions */}
-        {showIOSGuide && (
-          <div className="mt-2 p-3 bg-slate-950/80 border border-slate-800 rounded-xl text-xs text-slate-300 space-y-1.5 animate-in fade-in duration-200">
-            <p className="font-bold text-blue-300 flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5" /> Passos no iPhone/iPad:
+        {/* Step-by-step instructions when prompt is not automatic */}
+        {showGuide && (
+          <div className="mt-1 p-3.5 bg-slate-950/90 border border-slate-800 rounded-xl text-xs text-slate-300 space-y-2 animate-in fade-in duration-200">
+            <p className="font-bold text-blue-300 flex items-center gap-1.5 text-xs">
+              <CheckCircle2 className="w-4 h-4 text-blue-400" />
+              Como instalar no seu dispositivo:
             </p>
-            <ol className="list-decimal list-inside space-y-1 text-[11px] text-slate-400">
-              <li>Toque no botão <strong>Compartilhar</strong> (ícone com quadrado e seta) no Safari.</li>
-              <li>Role para baixo e selecione <strong>Adicionar à Tela de Início</strong>.</li>
-              <li>Confirme no canto superior direito tocando em <strong>Adicionar</strong>.</li>
-            </ol>
+            {isIOS ? (
+              <ol className="list-decimal list-inside space-y-1 text-[11px] text-slate-300 leading-relaxed">
+                <li>No Safari, toque no botão <strong>Compartilhar</strong> (ícone com quadrado e seta).</li>
+                <li>Role para baixo e selecione <strong>Adicionar à Tela de Início</strong>.</li>
+                <li>Confirme no canto superior direito tocando em <strong>Adicionar</strong>.</li>
+              </ol>
+            ) : (
+              <div className="space-y-2 text-[11px] text-slate-300 leading-relaxed">
+                <div>
+                  <strong className="text-slate-200 block mb-0.5">📱 Android (Chrome / Edge):</strong>
+                  <span>Clique nos 3 pontos (⋮) no topo do navegador e selecione <em>"Instalar aplicativo"</em> ou <em>"Adicionar à Tela Inicial"</em>.</span>
+                </div>
+                <div>
+                  <strong className="text-slate-200 block mb-0.5">💻 Computador (Chrome / Edge):</strong>
+                  <span>Clique no ícone de computador/instalação (⊕) no canto direito da barra de endereço.</span>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
