@@ -135,6 +135,9 @@ interface AppContextType {
   deferredPrompt: any;
   installPWA: () => void;
   isStandalone: boolean;
+  isInstallModalOpen: boolean;
+  openInstallModal: () => void;
+  closeInstallModal: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -284,6 +287,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isStandalone, setIsStandalone] = useState<boolean>(false);
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState<boolean>(false);
+
+  const openInstallModal = () => setIsInstallModalOpen(true);
+  const closeInstallModal = () => setIsInstallModalOpen(false);
 
   // Sync to LocalStorage
   useEffect(() => {
@@ -702,13 +709,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       deferredPrompt.userChoice.then((choiceResult: any) => {
         if (choiceResult.outcome === 'accepted') {
           showToast('success', 'Aplicativo instalado com sucesso!');
+          setDeferredPrompt(null);
         } else {
-          showToast('info', 'Instalação cancelada.');
+          setIsInstallModalOpen(true);
         }
-        setDeferredPrompt(null);
       });
     } else {
-      showToast('info', 'Para instalar no celular, use a opção "Adicionar à Tela Inicial" do navegador.');
+      setIsInstallModalOpen(true);
     }
   };
 
@@ -780,7 +787,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         resetDemoData,
         deferredPrompt,
         installPWA,
-        isStandalone
+        isStandalone,
+        isInstallModalOpen,
+        openInstallModal,
+        closeInstallModal
       }}
     >
       {children}

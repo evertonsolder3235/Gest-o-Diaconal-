@@ -13,7 +13,8 @@ import {
   Settings,
   Lock,
   Unlock,
-  LogOut
+  LogOut,
+  Download
 } from 'lucide-react';
 
 export const Header: React.FC = () => {
@@ -27,7 +28,9 @@ export const Header: React.FC = () => {
     logout,
     visitantes,
     pedidos,
-    avisos
+    avisos,
+    installPWA,
+    isStandalone
   } = useApp();
 
   const getTabTitle = () => {
@@ -80,6 +83,17 @@ export const Header: React.FC = () => {
 
           {/* Right side admin status & logout buttons */}
           <div className="flex items-center gap-2">
+            {!isStandalone && (
+              <button
+                onClick={installPWA}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-md shadow-blue-900/30 transition-all"
+                title="Instalar atalho do aplicativo no celular ou computador"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Instalar App</span>
+              </button>
+            )}
+
             {isAdminUnlocked ? (
               <button
                 onClick={lockAdmin}

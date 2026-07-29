@@ -5,6 +5,7 @@ import { BottomNav } from './components/BottomNav';
 import { ToastContainer } from './components/ToastContainer';
 import { ConfirmModal } from './components/ConfirmModal';
 import { AdminPasswordModal } from './components/AdminPasswordModal';
+import { PWAInstallModal } from './components/PWAInstallModal';
 
 import { DashboardView } from './components/views/DashboardView';
 import { VisitantesView } from './components/views/VisitantesView';
@@ -45,6 +46,7 @@ const MainLayout: React.FC = () => {
       <ToastContainer />
       <ConfirmModal />
       <AdminPasswordModal />
+      <PWAInstallModal />
     </div>
   );
 };
