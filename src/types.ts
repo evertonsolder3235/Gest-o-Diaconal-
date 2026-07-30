@@ -60,6 +60,7 @@ export interface Obreiro {
   cargoMinistério?: string;
   status: ObreiroStatus;
   observacao?: string;
+  fotoUrl?: string;
 }
 
 export type PedidoStatus = 'Urgente' | 'Em Oração' | 'Atendido / Agradecimento';

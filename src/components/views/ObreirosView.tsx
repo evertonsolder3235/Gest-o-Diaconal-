@@ -15,7 +15,9 @@ import {
   Eye,
   Building,
   CheckCircle,
-  Briefcase
+  Briefcase,
+  Camera,
+  Upload
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -41,7 +43,8 @@ export const ObreirosView: React.FC = () => {
     askConfirmDelete,
     searchQuery,
     setSearchQuery,
-    requestAdminAuth
+    requestAdminAuth,
+    showToast
   } = useApp();
 
   const [deptFilter, setDeptFilter] = useState<string>('todos');
@@ -61,6 +64,59 @@ export const ObreirosView: React.FC = () => {
   const [cargoMinistério, setCargoMinistério] = useState('Diácono');
   const [status, setStatus] = useState<ObreiroStatus>('Ativo');
   const [observacao, setObservacao] = useState('');
+  const [fotoUrl, setFotoUrl] = useState('');
+
+  const handlePhotoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('error', 'A foto deve ter no máximo 10MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 400;
+        const MAX_HEIGHT = 400;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height = Math.round((height * MAX_WIDTH) / width);
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width = Math.round((width * MAX_HEIGHT) / height);
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+          setFotoUrl(compressedBase64);
+          showToast('info', 'Foto do obreiro carregada e otimizada.');
+        } else {
+          setFotoUrl(event.target?.result as string);
+          showToast('info', 'Foto carregada.');
+        }
+      };
+      img.onerror = () => {
+        setFotoUrl(event.target?.result as string);
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
 
   const openAddModal = () => {
     requestAdminAuth(() => {
@@ -75,6 +131,7 @@ export const ObreirosView: React.FC = () => {
       setCargoMinistério('Diácono');
       setStatus('Ativo');
       setObservacao('');
+      setFotoUrl('');
       setIsModalOpen(true);
     }, 'Acesso Restrito: Cadastrar Novo Obreiro', true);
   };
@@ -92,6 +149,7 @@ export const ObreirosView: React.FC = () => {
       setCargoMinistério(item.cargoMinistério || 'Diácono');
       setStatus(item.status);
       setObservacao(item.observacao || '');
+      setFotoUrl(item.fotoUrl || '');
       setIsModalOpen(true);
     }, 'Acesso Restrito: Editar Obreiro', true);
   };
@@ -111,7 +169,8 @@ export const ObreirosView: React.FC = () => {
         bairro,
         cargoMinistério,
         status,
-        observacao
+        observacao,
+        fotoUrl
       });
     } else {
       addObreiro({
@@ -124,7 +183,8 @@ export const ObreirosView: React.FC = () => {
         bairro,
         cargoMinistério,
         status,
-        observacao
+        observacao,
+        fotoUrl
       });
     }
 
@@ -296,7 +356,7 @@ export const ObreirosView: React.FC = () => {
               >
                 <div>
                   <div className="flex items-start justify-between gap-2 mb-3">
-                    <div className="flex items-start gap-2.5">
+                    <div className="flex items-start gap-2.5 min-w-0">
                       <input
                         type="checkbox"
                         checked={isSelected}
@@ -304,12 +364,23 @@ export const ObreirosView: React.FC = () => {
                         className="mt-1 w-4 h-4 rounded bg-slate-950 border-slate-700 text-emerald-600 focus:ring-emerald-500 cursor-pointer shrink-0"
                         title="Selecionar para exclusão"
                       />
-                      <div>
-                        <h3 className="font-extrabold text-slate-100 text-base leading-snug">
+                      {item.fotoUrl ? (
+                        <img
+                          src={item.fotoUrl}
+                          alt={item.nomeCompleto}
+                          className="w-10 h-10 rounded-xl object-cover border border-slate-700 shrink-0 shadow-sm"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-xl bg-emerald-950/80 border border-emerald-800/60 flex items-center justify-center text-emerald-400 font-extrabold text-sm shrink-0">
+                          {item.nomeCompleto.charAt(0)}
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <h3 className="font-extrabold text-slate-100 text-base leading-snug truncate">
                           {item.nomeCompleto}
                         </h3>
-                        <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400 mt-0.5">
-                          <Briefcase className="w-3.5 h-3.5" />
+                        <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400 mt-0.5 truncate">
+                          <Briefcase className="w-3.5 h-3.5 shrink-0" />
                           <span>{item.cargoMinistério || 'Diácono'}</span>
                         </div>
                       </div>
@@ -396,9 +467,17 @@ export const ObreirosView: React.FC = () => {
               </button>
 
               <div className="flex items-center gap-3 mb-4 pr-8 shrink-0">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-extrabold text-xl shrink-0">
-                  {viewingItem.nomeCompleto.charAt(0)}
-                </div>
+                {viewingItem.fotoUrl ? (
+                  <img
+                    src={viewingItem.fotoUrl}
+                    alt={viewingItem.nomeCompleto}
+                    className="w-12 h-12 rounded-2xl object-cover border border-emerald-500/40 shrink-0 shadow-md"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-extrabold text-xl shrink-0">
+                    {viewingItem.nomeCompleto.charAt(0)}
+                  </div>
+                )}
                 <div className="min-w-0">
                   <h3 className="text-lg font-bold text-slate-100 truncate">{viewingItem.nomeCompleto}</h3>
                   <p className="text-xs text-emerald-400 font-semibold">{viewingItem.cargoMinistério || 'Diácono'}</p>
@@ -493,6 +572,47 @@ export const ObreirosView: React.FC = () => {
               </div>
 
               <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto pr-1 space-y-3 text-left">
+                {/* Upload da Foto do Obreiro */}
+                <div className="p-3 bg-slate-950 rounded-2xl border border-slate-800">
+                  <label className="block text-xs font-semibold text-slate-300 mb-2">
+                    Foto do Obreiro (Upload)
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <div className="relative w-16 h-16 rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden flex items-center justify-center shrink-0">
+                      {fotoUrl ? (
+                        <>
+                          <img src={fotoUrl} alt="Foto do obreiro" className="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => setFotoUrl('')}
+                            className="absolute top-1 right-1 p-1 bg-rose-600/90 hover:bg-rose-600 text-white rounded-full transition-colors shadow-md"
+                            title="Remover foto"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </>
+                      ) : (
+                        <Camera className="w-6 h-6 text-slate-500" />
+                      )}
+                    </div>
+                    <div className="flex-1 space-y-1.5">
+                      <label className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold cursor-pointer border border-slate-700 transition-colors">
+                        <Upload className="w-4 h-4 text-emerald-400" />
+                        <span>{fotoUrl ? 'Alterar Foto' : 'Carregar Foto de Perfil'}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handlePhotoFileChange}
+                          className="hidden"
+                        />
+                      </label>
+                      <p className="text-[10px] text-slate-500">
+                        Selecione uma foto (JPG, PNG) no seu dispositivo (Máx 10MB).
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1">Nome Completo *</label>
                   <input
