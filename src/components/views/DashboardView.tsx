@@ -84,6 +84,36 @@ export const DashboardView: React.FC = () => {
     return dateStr;
   };
 
+  const isBirthdayToday = (dateStr?: string) => {
+    if (!dateStr) return false;
+    const now = new Date();
+    const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+    const currentDay = String(now.getDate()).padStart(2, '0');
+
+    // YYYY-MM-DD or MM-DD
+    const ymdMatch = dateStr.match(/^(?:\d{4}-)?(\d{2})-(\d{2})$/);
+    if (ymdMatch) {
+      const [, month, day] = ymdMatch;
+      return month === currentMonth && day === currentDay;
+    }
+
+    // DD/MM or DD/MM/YYYY
+    const dmyMatch = dateStr.match(/^(\d{2})\/(\d{2})(?:\/\d{4})?$/);
+    if (dmyMatch) {
+      const [, day, month] = dmyMatch;
+      return month === currentMonth && day === currentDay;
+    }
+
+    return false;
+  };
+
+  const obreirosAniversariantesHoje = obreiros.filter((o) => isBirthdayToday(o.dataNascimento));
+  const comemoracoesHoje = aniversariantes.filter((a) => isBirthdayToday(a.data));
+  const totalAniversariantesHoje = obreirosAniversariantesHoje.length + comemoracoesHoje.length;
+  const temAniversarianteHoje = totalAniversariantesHoje > 0;
+
+  const alertAniversariantes = pulseAniversariantes || temAniversarianteHoje;
+
   return (
     <div className="space-y-6 pb-12">
       {/* Top Main Status Bar - Topo da Visão do Painel */}
@@ -198,15 +228,15 @@ export const DashboardView: React.FC = () => {
             setActiveTab('aniversariantes');
           }}
           className={`bg-slate-900/90 border rounded-2xl p-3.5 cursor-pointer transition-all hover:bg-slate-850 group flex flex-col justify-between relative overflow-hidden ${
-            pulseAniversariantes
-              ? 'border-purple-500/80 shadow-[0_0_15px_rgba(168,85,247,0.25)] animate-pulse'
+            alertAniversariantes
+              ? 'border-purple-500/80 shadow-[0_0_18px_rgba(168,85,247,0.35)] animate-pulse'
               : 'border-slate-800 hover:border-purple-500/50'
           }`}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5">
               <span className="text-[11px] font-bold text-slate-400 group-hover:text-purple-400">Aniversários</span>
-              {pulseAniversariantes && (
+              {alertAniversariantes && (
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
@@ -218,9 +248,11 @@ export const DashboardView: React.FC = () => {
           <div className="mt-2 flex items-end justify-between gap-1">
             <div>
               <div className="text-xl font-extrabold text-white">{aniversariantes.length}</div>
-              <span className="text-[10px] text-slate-500 block truncate">Bodas & Nasc.</span>
+              <span className={`text-[10px] block truncate font-semibold ${temAniversarianteHoje ? 'text-purple-300 font-bold' : 'text-slate-500'}`}>
+                {temAniversarianteHoje ? `🎉 ${totalAniversariantesHoje} hoje!` : 'Bodas & Nasc.'}
+              </span>
             </div>
-            {pulseAniversariantes && (
+            {alertAniversariantes && (
               <button
                 type="button"
                 onClick={(e) => {

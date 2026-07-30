@@ -16,9 +16,20 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
+const formatDateBR = (dateStr?: string) => {
+  if (!dateStr) return '';
+  const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (match) {
+    const [, year, month, day] = match;
+    return `${day}/${month}/${year}`;
+  }
+  return dateStr;
+};
+
 export const AniversariantesView: React.FC = () => {
   const {
     aniversariantes,
+    obreiros,
     addAniversariante,
     updateAniversariante,
     deleteAniversariante,
@@ -28,6 +39,29 @@ export const AniversariantesView: React.FC = () => {
     setSearchQuery,
     requestAdminAuth
   } = useApp();
+
+  const isBirthdayToday = (dateStr?: string) => {
+    if (!dateStr) return false;
+    const now = new Date();
+    const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+    const currentDay = String(now.getDate()).padStart(2, '0');
+
+    const ymdMatch = dateStr.match(/^(?:\d{4}-)?(\d{2})-(\d{2})$/);
+    if (ymdMatch) {
+      const [, month, day] = ymdMatch;
+      return month === currentMonth && day === currentDay;
+    }
+
+    const dmyMatch = dateStr.match(/^(\d{2})\/(\d{2})(?:\/\d{4})?$/);
+    if (dmyMatch) {
+      const [, day, month] = dmyMatch;
+      return month === currentMonth && day === currentDay;
+    }
+
+    return false;
+  };
+
+  const obreirosAniversariantesHoje = obreiros.filter((o) => isBirthdayToday(o.dataNascimento));
 
   const [tipoFilter, setTipoFilter] = useState<string>('todos');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -173,6 +207,48 @@ export const AniversariantesView: React.FC = () => {
         </button>
       </div>
 
+      {/* Banner de Obreiros Aniversariando Hoje */}
+      {obreirosAniversariantesHoje.length > 0 && (
+        <div className="bg-gradient-to-r from-purple-950/80 via-purple-900/60 to-slate-900 border border-purple-500/60 rounded-2xl p-4 shadow-lg shadow-purple-950/40 space-y-3">
+          <div className="flex items-center gap-2 text-purple-200 font-extrabold text-sm">
+            <Cake className="w-5 h-5 text-purple-400 animate-bounce" />
+            <span>🎉 Obreiro(s) Aniversariando Hoje!</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {obreirosAniversariantesHoje.map((ob) => (
+              <div key={ob.id} className="flex items-center justify-between p-3 bg-slate-900/90 border border-purple-500/30 rounded-xl">
+                <div className="flex items-center gap-3 min-w-0">
+                  {ob.fotoUrl ? (
+                    <img src={ob.fotoUrl} alt={ob.nomeCompleto} className="w-10 h-10 rounded-xl object-cover border border-purple-400/40 shrink-0" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-xl bg-purple-950 border border-purple-700/60 flex items-center justify-center text-purple-300 font-extrabold shrink-0">
+                      {ob.nomeCompleto.charAt(0)}
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <h4 className="font-extrabold text-slate-100 text-sm truncate">{ob.nomeCompleto}</h4>
+                    <p className="text-xs text-purple-300 font-medium truncate">{ob.cargoMinistério || 'Obreiro'} • {ob.departamento}</p>
+                  </div>
+                </div>
+                {ob.telefone && (
+                  <a
+                    href={`https://wa.me/55${ob.telefone.replace(/\D/g, '')}?text=${encodeURIComponent(
+                      `Parabéns, ${ob.nomeCompleto}! A igreja e a equipe diaconal te desejam um feliz aniversário! Que o Senhor Jesus te abençoe rica e abundantemente!`
+                    )}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-3 py-1.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 text-xs font-bold flex items-center gap-1.5 transition-colors shrink-0 ml-2"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Parabéns</span>
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Filter Chips & Search */}
       <div className="flex flex-col sm:flex-row items-center gap-3">
         <div className="relative flex-1 w-full">
@@ -305,7 +381,7 @@ export const AniversariantesView: React.FC = () => {
                     </div>
 
                   <div className="px-3 py-1 bg-purple-950/80 border border-purple-800/80 rounded-xl text-right">
-                    <span className="text-xs font-mono font-bold text-purple-200 block">{item.data}</span>
+                    <span className="text-xs font-mono font-bold text-purple-200 block">{formatDateBR(item.data)}</span>
                     <span className="text-[10px] text-purple-400 uppercase font-semibold">Data</span>
                   </div>
                 </div>

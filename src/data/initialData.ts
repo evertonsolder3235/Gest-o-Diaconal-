@@ -120,7 +120,7 @@ export const initialObreiros: Obreiro[] = [
     id: 'ob-1',
     nomeCompleto: 'Carlos Eduardo da Silva',
     telefone: '(11) 98765-1111',
-    dataNascimento: '1984-07-25',
+    dataNascimento: '1984-07-30',
     departamento: 'Diaconia',
     rua: 'Rua dos Ipês',
     numero: '240',
