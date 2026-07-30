@@ -95,7 +95,7 @@ export const AniversariantesView: React.FC = () => {
         `Deseja realmente excluir o registro de comemoração de "${item.nome}"?`,
         () => deleteAniversariante(item.id)
       );
-    }, 'Excluir Comemoração');
+    }, 'Acesso Restrito: Excluir Comemoração', true);
   };
 
   const toggleSelectItem = (id: string) => {
@@ -126,7 +126,7 @@ export const AniversariantesView: React.FC = () => {
           setSelectedIds([]);
         }
       );
-    }, 'Excluir Comemorações Selecionadas');
+    }, 'Acesso Restrito: Excluir Comemorações Selecionadas', true);
   };
 
   const getWhatsAppMsgLink = (item: Aniversariante) => {
