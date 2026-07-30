@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { Lock, X, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -8,16 +8,12 @@ export const AdminPasswordModal: React.FC = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (adminAuthModal.isOpen) {
       setPassword('');
       setError(false);
       setShowPassword(false);
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 100);
     }
   }, [adminAuthModal.isOpen]);
 
@@ -61,7 +57,7 @@ export const AdminPasswordModal: React.FC = () => {
                 {adminAuthModal.title || 'Autenticação de Segurança'}
               </h3>
               <p className="text-xs text-slate-400">
-                Sua autorização é necessária para criar ou editar registros.
+                Digite a senha administrativa para autorizar esta ação restrita.
               </p>
             </div>
           </div>
@@ -73,7 +69,6 @@ export const AdminPasswordModal: React.FC = () => {
               </label>
               <div className="relative">
                 <input
-                  ref={inputRef}
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => {

@@ -86,7 +86,7 @@ export const FinanceiroView: React.FC = () => {
       setComprovanteUrl(item.comprovanteUrl);
       setComprovanteNome(item.comprovanteNome);
       setIsModalOpen(true);
-    }, 'Editar Contribuição');
+    }, 'Acesso Restrito: Editar Contribuição', true);
   };
 
   // Handle File Upload for Comprovante
@@ -134,11 +134,13 @@ export const FinanceiroView: React.FC = () => {
   };
 
   const handleDelete = (item: ContribuicaoFinanceira) => {
-    askConfirmDelete(
-      'Excluir Registro Financeiro',
-      `Deseja realmente excluir a contribuição de ${formatBRL(item.valor)} (${item.nomeContribuinte})?`,
-      () => deleteContribuicao(item.id)
-    );
+    requestAdminAuth(() => {
+      askConfirmDelete(
+        'Excluir Registro Financeiro',
+        `Deseja realmente excluir a contribuição de ${formatBRL(item.valor)} (${item.nomeContribuinte})?`,
+        () => deleteContribuicao(item.id)
+      );
+    }, 'Acesso Restrito: Excluir Registro Financeiro', true);
   };
 
   const toggleSelectItem = (id: string) => {
@@ -169,7 +171,7 @@ export const FinanceiroView: React.FC = () => {
           setSelectedIds([]);
         }
       );
-    }, 'Excluir Lançamentos Financeiros');
+    }, 'Acesso Restrito: Excluir Lançamentos Financeiros', true);
   };
 
   // Calculations for Summary

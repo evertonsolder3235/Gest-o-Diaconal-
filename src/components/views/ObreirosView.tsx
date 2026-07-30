@@ -93,7 +93,7 @@ export const ObreirosView: React.FC = () => {
       setStatus(item.status);
       setObservacao(item.observacao || '');
       setIsModalOpen(true);
-    }, 'Editar Obreiro');
+    }, 'Acesso Restrito: Editar Obreiro', true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -138,7 +138,7 @@ export const ObreirosView: React.FC = () => {
         `Deseja realmente excluir o cadastro de "${item.nomeCompleto}"? Esta informação será removida permanentemente.`,
         () => deleteObreiro(item.id)
       );
-    }, 'Excluir Obreiro');
+    }, 'Acesso Restrito: Excluir Obreiro', true);
   };
 
   const toggleSelectItem = (id: string) => {
@@ -169,7 +169,7 @@ export const ObreirosView: React.FC = () => {
           setSelectedIds([]);
         }
       );
-    }, 'Excluir Obreiros');
+    }, 'Acesso Restrito: Excluir Obreiros', true);
   };
 
   const filteredList = obreiros.filter((item) => {

@@ -95,7 +95,7 @@ export const PedidosOracaoView: React.FC = () => {
         `Deseja realmente excluir o motivo de oração de "${item.nome}"?`,
         () => deletePedido(item.id)
       );
-    }, 'Excluir Pedido de Oração');
+    }, 'Acesso Restrito: Excluir Pedido de Oração', true);
   };
 
   const toggleSelectItem = (id: string) => {
@@ -126,7 +126,7 @@ export const PedidosOracaoView: React.FC = () => {
           setSelectedIds([]);
         }
       );
-    }, 'Excluir Pedidos Selecionados');
+    }, 'Acesso Restrito: Excluir Pedidos Selecionados', true);
   };
 
   const filteredList = pedidos.filter((item) => {

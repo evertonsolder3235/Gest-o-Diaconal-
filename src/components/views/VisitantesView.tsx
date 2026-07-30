@@ -101,7 +101,7 @@ export const VisitantesView: React.FC = () => {
         `Deseja realmente excluir o cadastro do visitante "${item.nome}"? Esta ação não poderá ser desfeita.`,
         () => deleteVisitante(item.id)
       );
-    }, 'Excluir Visitante');
+    }, 'Acesso Restrito: Excluir Visitante', true);
   };
 
   const toggleSelectItem = (id: string) => {
@@ -132,7 +132,7 @@ export const VisitantesView: React.FC = () => {
           setSelectedIds([]);
         }
       );
-    }, 'Excluir Visitantes Selecionados');
+    }, 'Acesso Restrito: Excluir Visitantes Selecionados', true);
   };
 
   // WhatsApp Helper Message

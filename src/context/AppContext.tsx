@@ -45,7 +45,7 @@ interface AppContextType {
   login: (email: string) => boolean;
   logout: () => void;
   isAdminUnlocked: boolean;
-  requestAdminAuth: (onSuccess: () => void, title?: string) => void;
+  requestAdminAuth: (onSuccess: () => void, title?: string, forcePassword?: boolean) => void;
   adminAuthModal: AdminAuthModalState;
   closeAdminAuthModal: () => void;
   verifyAndUnlockAdmin: (password: string, rememberSession?: boolean) => boolean;
@@ -244,14 +244,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [isAdminUnlocked, setIsAdminUnlocked] = useState(true);
   const [adminAuthModal, setAdminAuthModal] = useState<AdminAuthModalState>({ isOpen: false });
 
-  const requestAdminAuth = (onSuccess: () => void, title?: string) => {
-    if (isAdminUnlocked) {
+  const requestAdminAuth = (onSuccess: () => void, title?: string, forcePassword = false) => {
+    if (isAdminUnlocked && !forcePassword) {
       onSuccess();
     } else {
       setAdminAuthModal({
         isOpen: true,
         onSuccess,
-        title
+        title: title || 'Acesso Administrativo Restrito'
       });
     }
   };

@@ -61,7 +61,7 @@ export const AvisosView: React.FC = () => {
       setHorario(item.horario || '');
       setFixado(item.fixado);
       setIsModalOpen(true);
-    }, 'Editar Aviso');
+    }, 'Acesso Restrito: Editar Aviso', true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -96,7 +96,7 @@ export const AvisosView: React.FC = () => {
         `Deseja realmente excluir o comunicado "${item.titulo}"?`,
         () => deleteAviso(item.id)
       );
-    }, 'Excluir Aviso');
+    }, 'Acesso Restrito: Excluir Aviso', true);
   };
 
   const toggleSelectItem = (id: string) => {
@@ -127,7 +127,7 @@ export const AvisosView: React.FC = () => {
           setSelectedIds([]);
         }
       );
-    }, 'Excluir Avisos');
+    }, 'Acesso Restrito: Excluir Avisos', true);
   };
 
   const filteredList = avisos.filter((item) => {

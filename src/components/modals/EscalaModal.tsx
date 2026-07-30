@@ -285,13 +285,13 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
       setShowItemForm(true);
     };
 
-    if (isMontarEscalaAuth || viewMode === 'mensal') {
+    if (isMontarEscalaAuth) {
       openForm();
     } else {
       requestAdminAuth(() => {
         setIsMontarEscalaAuth(true);
         openForm();
-      }, 'Adicionar à Escala');
+      }, 'Acesso Restrito: Adicionar à Escala', true);
     }
   };
 
@@ -309,19 +309,27 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
       setShowItemForm(true);
     };
 
-    if (isMontarEscalaAuth || viewMode === 'mensal') {
+    if (isMontarEscalaAuth) {
       openForm();
     } else {
       requestAdminAuth(() => {
         setIsMontarEscalaAuth(true);
         openForm();
-      }, 'Editar Escalado');
+      }, 'Acesso Restrito: Editar Escalado', true);
     }
   };
 
   const handleDeleteItemLocal = (id: string) => {
-    setLocalEscalas((prev) => prev.filter((i) => i.id !== id));
-    showToast('info', 'Item removido da escala local.');
+    if (isMontarEscalaAuth) {
+      setLocalEscalas((prev) => prev.filter((i) => i.id !== id));
+      showToast('info', 'Item removido da escala local.');
+    } else {
+      requestAdminAuth(() => {
+        setIsMontarEscalaAuth(true);
+        setLocalEscalas((prev) => prev.filter((i) => i.id !== id));
+        showToast('info', 'Item removido da escala local.');
+      }, 'Acesso Restrito: Excluir da Escala', true);
+    }
   };
 
   // Final Save Escala Action
@@ -437,13 +445,13 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
             </button>
             <button
               onClick={() => {
-                if (isMontarEscalaAuth || viewMode === 'mensal') {
+                if (isMontarEscalaAuth) {
                   setViewMode('mensal');
                 } else {
                   requestAdminAuth(() => {
                     setIsMontarEscalaAuth(true);
                     setViewMode('mensal');
-                  }, 'Montar / Editar Escala Mensal');
+                  }, 'Acesso Restrito: Montar / Editar Escala Mensal', true);
                 }
               }}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
