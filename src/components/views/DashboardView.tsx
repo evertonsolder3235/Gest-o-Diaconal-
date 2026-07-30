@@ -450,7 +450,7 @@ export const DashboardView: React.FC = () => {
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2 text-amber-400 font-bold text-sm">
               <Pin className="w-4 h-4 fill-amber-400/20" />
-              <span>Avisos Importantes da Semana</span>
+              <span>Avisos Importantes!</span>
             </div>
             <button
               onClick={() => setActiveTab('avisos')}
