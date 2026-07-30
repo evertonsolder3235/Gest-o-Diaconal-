@@ -1,6 +1,16 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Aviso } from '../../types';
+
+const formatDateBR = (dateStr?: string) => {
+  if (!dateStr) return '';
+  const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (match) {
+    const [, year, month, day] = match;
+    return `${day}/${month}/${year}`;
+  }
+  return dateStr;
+};
 import {
   Megaphone,
   Plus,
@@ -270,7 +280,7 @@ export const AvisosView: React.FC = () => {
                 <div className="flex items-center gap-4 text-xs text-slate-400 font-medium">
                   <div className="flex items-center gap-1.5">
                     <Calendar className="w-3.5 h-3.5 text-amber-400" />
-                    <span>{item.data}</span>
+                    <span>{formatDateBR(item.data)}</span>
                   </div>
                   {item.horario && (
                     <div className="flex items-center gap-1.5">

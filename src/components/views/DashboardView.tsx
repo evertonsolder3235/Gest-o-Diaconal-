@@ -74,6 +74,16 @@ export const DashboardView: React.FC = () => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
   };
 
+  const formatDateBR = (dateStr?: string) => {
+    if (!dateStr) return '';
+    const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (match) {
+      const [, year, month, day] = match;
+      return `${day}/${month}/${year}`;
+    }
+    return dateStr;
+  };
+
   return (
     <div className="space-y-6 pb-12">
       {/* Top Main Status Bar - Topo da Visão do Painel */}
@@ -471,7 +481,7 @@ export const DashboardView: React.FC = () => {
                 <div className="flex items-start justify-between gap-2">
                   <h4 className="font-bold text-slate-100 text-xs sm:text-sm">{aviso.titulo}</h4>
                   <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-amber-900/40 text-amber-300 border border-amber-700/40 shrink-0">
-                    {aviso.data} {aviso.horario ? `às ${aviso.horario}` : ''}
+                    {formatDateBR(aviso.data)} {aviso.horario ? `às ${aviso.horario}` : ''}
                   </span>
                 </div>
                 <p className="text-xs text-slate-300 mt-1 line-clamp-2 leading-relaxed">
