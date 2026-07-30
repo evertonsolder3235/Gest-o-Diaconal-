@@ -76,7 +76,7 @@ export const ObreirosView: React.FC = () => {
       setStatus('Ativo');
       setObservacao('');
       setIsModalOpen(true);
-    }, 'Cadastrar Novo Obreiro');
+    }, 'Acesso Restrito: Cadastrar Novo Obreiro', true);
   };
 
   const openEditModal = (item: Obreiro) => {
