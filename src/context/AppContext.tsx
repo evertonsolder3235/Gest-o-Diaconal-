@@ -359,7 +359,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const handleAppInstalled = () => {
       setDeferredPrompt(null);
       setIsStandalone(true);
-      showToast('success', 'Aplicativo Gestão Diaconal instalado com sucesso no seu dispositivo!');
+      showToast('success', 'Aplicativo Minha Adbras instalado com sucesso no seu dispositivo!');
     };
 
     const checkStandalone = () => {
