@@ -146,18 +146,16 @@ export const DashboardView: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2.5 w-full sm:w-auto shrink-0">
-            <a
-              href="/gestao-diaconal.apk"
-              download="GestaoDiaconal.apk"
+            <button
               onClick={() => {
                 installPWA();
                 setIsApkModalOpen(true);
               }}
               className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs sm:text-sm shadow-lg shadow-emerald-950/50 border border-emerald-400/40 transition-all active:scale-95 cursor-pointer"
             >
-              <Download className="w-4 h-4" />
-              <span>Baixar Aplicativo (APK)</span>
-            </a>
+              <Smartphone className="w-4 h-4" />
+              <span>Instalar Aplicativo Nativo</span>
+            </button>
 
             <button
               onClick={() => setIsApkModalOpen(true)}
@@ -682,26 +680,24 @@ export const DashboardView: React.FC = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-2.5 pt-2 border-t border-slate-800">
-              <a
-                href="/gestao-diaconal.apk"
-                download="GestaoDiaconal.apk"
-                onClick={() => installPWA()}
-                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-emerald-950/60 border border-emerald-400/40 transition-all cursor-pointer text-center"
-              >
-                <Download className="w-4 h-4" />
-                <span>Baixar APK do Aplicativo</span>
-              </a>
-
               <button
                 type="button"
                 onClick={() => {
                   installPWA();
                   setIsApkModalOpen(false);
                 }}
-                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm border border-blue-400/40 transition-all text-center cursor-pointer"
+                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-emerald-950/60 border border-emerald-400/40 transition-all cursor-pointer text-center"
               >
                 <Smartphone className="w-4 h-4" />
-                <span>Instalar via WebAPK / Chrome</span>
+                <span>Instalar Aplicativo Nativo Agora</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsApkModalOpen(false)}
+                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs sm:text-sm border border-slate-700 transition-all text-center cursor-pointer"
+              >
+                <span>Entendi / Fechar</span>
               </button>
             </div>
           </div>
