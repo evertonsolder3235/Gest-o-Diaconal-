@@ -689,17 +689,16 @@ export const DashboardView: React.FC = () => {
                 className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-emerald-950/60 border border-emerald-400/40 transition-all cursor-pointer text-center"
               >
                 <Smartphone className="w-4 h-4" />
-                <span>Instalar Aplicativo Nativo</span>
+                <span>Instalar Aplicativo Nativo Agora</span>
               </button>
 
-              <a
-                href="/gestao-diaconal.apk"
-                download="GestaoDiaconal.apk"
-                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs sm:text-sm border border-slate-700 transition-all text-center"
+              <button
+                type="button"
+                onClick={() => setIsApkModalOpen(false)}
+                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs sm:text-sm border border-slate-700 transition-all text-center cursor-pointer"
               >
-                <Download className="w-4 h-4" />
-                <span>Baixar APK Direto</span>
-              </a>
+                <span>Fechar</span>
+              </button>
             </div>
           </div>
         </div>
