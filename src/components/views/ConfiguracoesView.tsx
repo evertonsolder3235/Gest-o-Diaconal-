@@ -14,7 +14,8 @@ import {
   User as UserIcon,
   HardDrive,
   Copy,
-  Info
+  Info,
+  Lock
 } from 'lucide-react';
 
 export const ConfiguracoesView: React.FC = () => {
@@ -313,18 +314,39 @@ export const ConfiguracoesView: React.FC = () => {
             />
           </label>
 
-          <button
-            onClick={() => {
-              if (window.confirm('Tem certeza de que deseja restaurar os dados de demonstração originais?')) {
-                resetDemoData();
-              }
-            }}
-            className="flex items-center justify-center gap-2 p-3.5 rounded-xl bg-slate-950 border border-rose-900/40 hover:border-rose-800 text-rose-300 text-xs font-bold transition-all"
-          >
-            <RefreshCw className="w-4 h-4 text-rose-400" />
-            <span>Restaurar Dados Iniciais</span>
-          </button>
+          {isStandalone ? (
+            <button
+              disabled
+              onClick={() => resetDemoData()}
+              className="flex items-center justify-center gap-2 p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 text-slate-500 text-xs font-bold cursor-not-allowed opacity-75"
+              title="Recurso de reset bloqueado no aplicativo instalado (PWA)"
+            >
+              <Lock className="w-4 h-4 text-amber-500" />
+              <span>Reset Bloqueado no PWA</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                if (window.confirm('Tem certeza de que deseja restaurar os dados de demonstração originais?')) {
+                  resetDemoData();
+                }
+              }}
+              className="flex items-center justify-center gap-2 p-3.5 rounded-xl bg-slate-950 border border-rose-900/40 hover:border-rose-800 text-rose-300 text-xs font-bold transition-all"
+            >
+              <RefreshCw className="w-4 h-4 text-rose-400" />
+              <span>Restaurar Dados Iniciais</span>
+            </button>
+          )}
         </div>
+
+        {isStandalone && (
+          <div className="mt-4 p-3.5 rounded-xl bg-amber-950/20 border border-amber-800/40 flex items-start gap-2.5 text-xs text-amber-200/90">
+            <Lock className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+            <span>
+              <strong>Proteção do PWA Ativa:</strong> A restauração para dados de demonstração foi desativada automaticamente no aplicativo instalado para evitar perda acidental das informações da igreja.
+            </span>
+          </div>
+        )}
       </div>
 
       {/* 4. USER & SYSTEM INFO BADGE */}

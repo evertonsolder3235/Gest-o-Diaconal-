@@ -693,6 +693,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const resetDemoData = () => {
+    if (isStandalone) {
+      showToast('error', 'O reset para dados de demonstração está bloqueado no aplicativo instalado (PWA) para proteger suas informações.');
+      return;
+    }
     setConfig(initialConfig);
     setVisitantes(initialVisitantes);
     setAniversariantes(initialAniversariantes);
