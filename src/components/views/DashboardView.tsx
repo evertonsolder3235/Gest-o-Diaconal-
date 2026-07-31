@@ -23,7 +23,12 @@ import {
   CheckCheck,
   User,
   Eye,
-  EyeOff
+  EyeOff,
+  Smartphone,
+  Download,
+  X,
+  CheckCircle2,
+  Share2
 } from 'lucide-react';
 
 export const DashboardView: React.FC = () => {
@@ -40,12 +45,14 @@ export const DashboardView: React.FC = () => {
     markAsSeen,
     markAllAsSeen,
     config,
-    currentUser
+    currentUser,
+    installPWA
   } = useApp();
 
   const [escalaModalOpen, setEscalaModalOpen] = useState(false);
   const [escalaGrupo, setEscalaGrupo] = useState<'Homens' | 'Mulheres'>('Homens');
   const [showFinanceiroValue, setShowFinanceiroValue] = useState<boolean>(false);
+  const [isApkModalOpen, setIsApkModalOpen] = useState(false);
 
   const totalVisitantes = visitantes.length;
   const visitantesNovos = visitantes.filter(v => v.status === 'Novo').length;
@@ -116,6 +123,50 @@ export const DashboardView: React.FC = () => {
 
   return (
     <div className="space-y-6 pb-12">
+      {/* Banner de Download do Aplicativo Android / APK & PWA */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-emerald-950/80 via-slate-900 to-blue-950/80 border border-emerald-500/40 rounded-2xl p-4 sm:p-5 shadow-xl">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white flex items-center justify-center p-2.5 shadow-lg shadow-emerald-950/60 border border-emerald-400/40 shrink-0">
+              <Smartphone className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-base sm:text-lg font-black text-white tracking-wide">
+                  Aplicativo Android Instalável (APK & PWA)
+                </h3>
+                <span className="px-2 py-0.5 text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full uppercase">
+                  Nativo Standalone
+                </span>
+              </div>
+              <p className="text-xs text-slate-300 mt-0.5">
+                Abra sem barra do navegador, em tela cheia com ícone personalizado na tela inicial do celular.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 w-full sm:w-auto shrink-0">
+            <a
+              href="/gestao-diaconal.apk"
+              download="GestaoDiaconal.apk"
+              onClick={() => setIsApkModalOpen(true)}
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs sm:text-sm shadow-lg shadow-emerald-950/50 border border-emerald-400/40 transition-all active:scale-95 cursor-pointer"
+            >
+              <Download className="w-4 h-4" />
+              <span>Baixar Aplicativo (APK)</span>
+            </a>
+
+            <button
+              onClick={() => setIsApkModalOpen(true)}
+              className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs border border-slate-700 transition-all"
+              title="Instruções de Instalação"
+            >
+              Como Instalar
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Top Main Status Bar - Topo da Visão do Painel */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
         {/* Top Header: Calendar Icon & Title */}
@@ -571,6 +622,78 @@ export const DashboardView: React.FC = () => {
         onClose={() => setEscalaModalOpen(false)}
         grupoTarget={escalaGrupo}
       />
+
+      {/* Modal de Instalação do Aplicativo Android (APK & PWA) */}
+      {isApkModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5 relative max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setIsApkModalOpen(false)}
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white rounded-full hover:bg-slate-800 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-600/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
+                <Smartphone className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-white">Instalar Aplicativo Android</h3>
+                <p className="text-xs text-emerald-400 font-semibold">Modo Nativo Standalone & Tela Cheia</p>
+              </div>
+            </div>
+
+            <div className="space-y-3 bg-slate-950/70 border border-slate-800/80 rounded-2xl p-4 text-xs text-slate-300">
+              <div className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <span><strong>Sem Barra de Navegador:</strong> Abre exatamente como um app nativo baixado da Play Store.</span>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <span><strong>Ícone & Splash Screen:</strong> Acesso direto na tela inicial do celular com abertura instantânea.</span>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <span><strong>Funcionalidade 100% Sincronizada:</strong> Todos os dados de escalas, avisos, visitantes e financeiro em tempo real.</span>
+              </div>
+            </div>
+
+            <div className="space-y-3 text-left">
+              <h4 className="text-xs font-extrabold text-slate-200 uppercase tracking-wider">Passo a Passo para Instalar o APK:</h4>
+              <ol className="space-y-2 text-xs text-slate-300 list-decimal list-inside bg-slate-950/40 p-3 rounded-xl border border-slate-800/50">
+                <li className="leading-relaxed">Clique no botão verde <strong>"Baixar Arquivo APK"</strong> abaixo para realizar o download do pacote do aplicativo.</li>
+                <li className="leading-relaxed">Após o término do download, abra o arquivo <strong>GestaoDiaconal.apk</strong> na barra de notificações ou pasta Downloads.</li>
+                <li className="leading-relaxed">Se o Android perguntar, selecione <strong>Permitir instalação de fontes desconhecidas</strong> para este arquivo.</li>
+                <li className="leading-relaxed">Clique em <strong>Instalar</strong>. O ícone do app será adicionado à sua tela inicial!</li>
+              </ol>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2.5 pt-2 border-t border-slate-800">
+              <a
+                href="/gestao-diaconal.apk"
+                download="GestaoDiaconal.apk"
+                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-emerald-950/60 border border-emerald-400/40 transition-all cursor-pointer text-center"
+              >
+                <Download className="w-4 h-4" />
+                <span>Baixar Arquivo APK</span>
+              </a>
+
+              <button
+                type="button"
+                onClick={() => {
+                  installPWA();
+                  setIsApkModalOpen(false);
+                }}
+                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm border border-blue-400/40 transition-all cursor-pointer"
+              >
+                <Smartphone className="w-4 h-4" />
+                <span>Instalar via PWA (Navegador)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

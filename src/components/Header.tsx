@@ -10,7 +10,9 @@ import {
   Heart,
   Megaphone,
   Wallet,
-  Settings
+  Settings,
+  Smartphone,
+  Download
 } from 'lucide-react';
 
 export const Header: React.FC = () => {
@@ -70,6 +72,18 @@ export const Header: React.FC = () => {
               </p>
             </div>
           </div>
+
+          {/* Download App Button */}
+          <a
+            href="/gestao-diaconal.apk"
+            download="GestaoDiaconal.apk"
+            className="flex items-center gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-emerald-600/90 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-md shadow-emerald-950/40 border border-emerald-400/40 transition-all shrink-0 active:scale-95"
+            title="Baixar Aplicativo Android (APK)"
+          >
+            <Download className="w-3.5 h-3.5 text-emerald-200" />
+            <span className="hidden xs:inline">Baixar App</span>
+            <span className="xs:hidden">APK</span>
+          </a>
         </div>
 
         {/* Desktop Top Navigation Bar */}
