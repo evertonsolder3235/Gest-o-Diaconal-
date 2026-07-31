@@ -29,7 +29,12 @@ function makeChunk(type, data) {
   return Buffer.concat([len, body, crcBuf]);
 }
 
-function generatePngIcon(size) {
+/**
+ * Generates PNG icon buffer
+ * @param {number} size - Width/Height
+ * @param {boolean} isMaskable - If true, fills 100% background and keeps emblem within 60% safe zone
+ */
+function generatePngIcon(size, isMaskable = false) {
   const width = size;
   const height = size;
 
@@ -39,30 +44,35 @@ function generatePngIcon(size) {
   const cardR = 37, cardG = 99, cardB = 235; // #2563eb
   const fgR = 255, fgG = 255, fgB = 255; // White
 
-  const margin = Math.floor(size * 0.1);
-  const cornerRadius = Math.floor(size * 0.2);
+  // Safe zone scaling
+  const emblemScale = isMaskable ? 0.65 : 0.82;
+  const margin = Math.floor(size * ((1 - emblemScale) / 2));
+  const cardWidth = size - (margin * 2);
+  const cornerRadius = Math.floor(cardWidth * 0.22);
 
   for (let y = 0; y < height; y++) {
     const rowOffset = y * (width * 4 + 1);
-    rawData[rowOffset] = 0;
+    rawData[rowOffset] = 0; // PNG filter type 0 (None)
 
     for (let x = 0; x < width; x++) {
       const pxOffset = rowOffset + 1 + x * 4;
 
+      // Calculate inner rounded emblem card
       const cx = Math.max(margin + cornerRadius, Math.min(size - margin - cornerRadius, x));
       const cy = Math.max(margin + cornerRadius, Math.min(size - margin - cornerRadius, y));
       const distSq = (x - cx) * (x - cx) + (y - cy) * (y - cy);
       const isCard = (x >= margin && x < size - margin && y >= margin && y < size - margin && distSq <= cornerRadius * cornerRadius);
 
+      // Cross emblem centered inside the card
       const centerX = size / 2;
       const centerY = size / 2;
-      const barThick = Math.floor(size * 0.07);
-      const vertHalfLength = Math.floor(size * 0.26);
-      const horizHalfLength = Math.floor(size * 0.18);
-      const horizOffsetY = Math.floor(size * 0.06);
+      const barThick = Math.floor(cardWidth * 0.16);
+      const vertHalfLength = Math.floor(cardWidth * 0.32);
+      const horizHalfLength = Math.floor(cardWidth * 0.22);
+      const horizOffsetY = Math.floor(cardWidth * 0.08);
 
-      const isVertBar = (Math.abs(x - centerX) <= barThick) && (y >= centerY - vertHalfLength && y <= centerY + vertHalfLength);
-      const isHorizBar = (Math.abs(y - (centerY - horizOffsetY)) <= barThick) && (x >= centerX - horizHalfLength && x <= centerX + horizHalfLength);
+      const isVertBar = (Math.abs(x - centerX) <= barThick / 2) && (y >= centerY - vertHalfLength && y <= centerY + vertHalfLength);
+      const isHorizBar = (Math.abs(y - (centerY - horizOffsetY)) <= barThick / 2) && (x >= centerX - horizHalfLength && x <= centerX + horizHalfLength);
       const isCross = isVertBar || isHorizBar;
 
       if (isCard && isCross) {
@@ -108,7 +118,16 @@ if (!fs.existsSync(publicDir)) {
   fs.mkdirSync(publicDir, { recursive: true });
 }
 
-fs.writeFileSync(path.join(publicDir, 'icon-192.png'), generatePngIcon(192));
-fs.writeFileSync(path.join(publicDir, 'icon-512.png'), generatePngIcon(512));
-fs.writeFileSync(path.join(publicDir, 'apple-touch-icon.png'), generatePngIcon(180));
-console.log('Generated PNG icons successfully!');
+// Write standard "any" PNG icons
+fs.writeFileSync(path.join(publicDir, 'icon-192.png'), generatePngIcon(192, false));
+fs.writeFileSync(path.join(publicDir, 'icon-512.png'), generatePngIcon(512, false));
+
+// Write maskable PNG icons (100% background fill, emblem within safe zone)
+fs.writeFileSync(path.join(publicDir, 'icon-maskable-192.png'), generatePngIcon(192, true));
+fs.writeFileSync(path.join(publicDir, 'icon-maskable-512.png'), generatePngIcon(512, true));
+
+// Write Apple Touch Icon & Favicon
+fs.writeFileSync(path.join(publicDir, 'apple-touch-icon.png'), generatePngIcon(180, false));
+fs.writeFileSync(path.join(publicDir, 'favicon-64.png'), generatePngIcon(64, false));
+
+console.log('✅ Todos os ícones PWA (any, maskable, apple-touch-icon, favicon) foram gerados com sucesso!');

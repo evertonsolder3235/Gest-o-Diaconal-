@@ -1,17 +1,18 @@
 {
-  "short_name": "Gestão Diaconal",
   "name": "Gestão Diaconal - Sistema Ministerial de Igreja",
+  "short_name": "Gestão Diaconal",
   "id": "/",
   "start_url": "/",
   "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
-  "display": "standalone",
-  "display_override": ["fullscreen", "standalone", "minimal-ui"],
-  "orientation": "portrait-primary",
   "description": "Aplicativo PWA para gestão ministerial de diaconia, obreiros, visitantes, orações e finanças da igreja.",
   "categories": ["productivity", "utilities", "lifestyle"],
   "lang": "pt-BR",
+  "dir": "ltr",
   "prefer_related_applications": false,
   "icons": [
     {
@@ -21,7 +22,7 @@
       "purpose": "any"
     },
     {
-      "src": "/icon-192.png",
+      "src": "/icon-maskable-192.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "maskable"
@@ -33,10 +34,40 @@
       "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/icon-maskable-512.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Visitantes",
+      "short_name": "Visitantes",
+      "description": "Gerenciar visitantes e novos decididos",
+      "url": "/?tab=visitantes",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Obreiros",
+      "short_name": "Obreiros",
+      "description": "Lista de obreiros e diáconos",
+      "url": "/?tab=obreiros",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Orações",
+      "short_name": "Orações",
+      "description": "Pedidos de oração e intercessão",
+      "url": "/?tab=pedidos",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Financeiro",
+      "short_name": "Financeiro",
+      "description": "Gestão de dízimos e ofertas",
+      "url": "/?tab=financeiro",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

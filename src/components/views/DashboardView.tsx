@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ChurchLogo } from '../ChurchLogo';
 import { EscalaModal } from '../modals/EscalaModal';
+import { PWAPromptBanner } from '../PWAPromptBanner';
 import {
   Users,
   Cake,
@@ -116,6 +117,9 @@ export const DashboardView: React.FC = () => {
 
   return (
     <div className="space-y-6 pb-12">
+      {/* PWA Native Installation Banner */}
+      <PWAPromptBanner />
+
       {/* Top Main Status Bar - Topo da Visão do Painel */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
         {/* Top Header: Calendar Icon & Title */}

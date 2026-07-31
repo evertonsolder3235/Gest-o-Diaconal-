@@ -356,6 +356,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setDeferredPrompt(e);
     };
 
+    const handleAppInstalled = () => {
+      setDeferredPrompt(null);
+      setIsStandalone(true);
+      showToast('success', 'Aplicativo Gestão Diaconal instalado com sucesso no seu dispositivo!');
+    };
+
     const checkStandalone = () => {
       const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches ||
         (window.navigator as any).standalone === true;
@@ -363,10 +369,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    window.addEventListener('appinstalled', handleAppInstalled);
     checkStandalone();
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+      window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
 

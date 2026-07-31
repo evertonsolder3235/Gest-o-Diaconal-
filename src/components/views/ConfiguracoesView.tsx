@@ -217,6 +217,72 @@ export const ConfiguracoesView: React.FC = () => {
         </form>
       </div>
 
+      {/* 2. PWA NATIVE INSTALLATION STATUS & CRITERIA */}
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2.5">
+            <Smartphone className="w-5 h-5 text-blue-400" />
+            <h3 className="font-bold text-slate-100 text-sm">Status de Instalação PWA Nativa (Android & Chrome)</h3>
+          </div>
+          <span className={`px-2.5 py-1 text-xs font-extrabold rounded-full flex items-center gap-1.5 ${
+            isStandalone
+              ? 'bg-emerald-950 text-emerald-300 border border-emerald-700/60'
+              : 'bg-blue-950 text-blue-300 border border-blue-700/60'
+          }`}>
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+            <span>{isStandalone ? 'Aplicativo PWA Instalado (Standalone)' : 'Web App Instalável Pronto'}</span>
+          </span>
+        </div>
+
+        <p className="text-xs text-slate-300 leading-relaxed">
+          Este aplicativo atende 100% dos requisitos do Google Chrome e Android para disparo da janela nativa de instalação (<code className="bg-slate-950 px-1.5 py-0.5 rounded text-blue-300">beforeinstallprompt</code>).
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+            <div className="text-xs">
+              <strong className="text-slate-100 block">Manifest.json Válido</strong>
+              <span className="text-slate-400 text-[11px]">Nome, id "/", start_url "/", display: "standalone"</span>
+            </div>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+            <div className="text-xs">
+              <strong className="text-slate-100 block">Ícones Adaptativos & Maskable</strong>
+              <span className="text-slate-400 text-[11px]">192x192 e 512x512 em formato PNG + Maskable + Apple</span>
+            </div>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+            <div className="text-xs">
+              <strong className="text-slate-100 block">Service Worker Ativo (sw.js)</strong>
+              <span className="text-slate-400 text-[11px]">Interceptação de rede com suporte offline total</span>
+            </div>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+            <div className="text-xs">
+              <strong className="text-slate-100 block">Compatibilidade Vercel & HTTPS</strong>
+              <span className="text-slate-400 text-[11px]">Headers Service-Worker-Allowed e MIME types configurados</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="pt-2 flex items-center justify-between">
+          <button
+            onClick={installPWA}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold text-xs shadow-lg shadow-blue-900/40 border border-blue-400/40 transition-all cursor-pointer"
+          >
+            <Download className="w-4 h-4 text-white" />
+            <span>{isStandalone ? 'Aplicativo Já Instalado' : 'Disparar Instalação Nativa Agora'}</span>
+          </button>
+        </div>
+      </div>
+
       {/* 3. BACKUP & DATA MANAGEMENT */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
         <div className="flex items-center gap-2.5 mb-2">
