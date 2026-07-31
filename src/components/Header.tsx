@@ -22,7 +22,8 @@ export const Header: React.FC = () => {
     setActiveTab,
     visitantes,
     pedidos,
-    avisos
+    avisos,
+    installPWA
   } = useApp();
 
   const getTabTitle = () => {
@@ -73,17 +74,17 @@ export const Header: React.FC = () => {
             </div>
           </div>
 
-          {/* Download App Button */}
-          <a
-            href="/gestao-diaconal.apk"
-            download="GestaoDiaconal.apk"
-            className="flex items-center gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-emerald-600/90 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-md shadow-emerald-950/40 border border-emerald-400/40 transition-all shrink-0 active:scale-95"
-            title="Baixar Aplicativo Android (APK)"
+          {/* Download & Install App Button */}
+          <button
+            type="button"
+            onClick={installPWA}
+            className="flex items-center gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-emerald-600/90 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-md shadow-emerald-950/40 border border-emerald-400/40 transition-all shrink-0 active:scale-95 cursor-pointer"
+            title="Instalar Aplicativo Android Nativo (WebAPK)"
           >
-            <Download className="w-3.5 h-3.5 text-emerald-200" />
-            <span className="hidden xs:inline">Baixar App</span>
-            <span className="xs:hidden">APK</span>
-          </a>
+            <Smartphone className="w-3.5 h-3.5 text-emerald-200" />
+            <span className="hidden xs:inline">Instalar App</span>
+            <span className="xs:hidden">App</span>
+          </button>
         </div>
 
         {/* Desktop Top Navigation Bar */}

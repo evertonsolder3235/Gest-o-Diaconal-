@@ -133,33 +133,34 @@ export const DashboardView: React.FC = () => {
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="text-base sm:text-lg font-black text-white tracking-wide">
-                  Aplicativo Android Instalável (APK & PWA)
+                  Aplicativo Android Nativo (WebAPK)
                 </h3>
                 <span className="px-2 py-0.5 text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full uppercase">
-                  Nativo Standalone
+                  Standalone • Tela Cheia
                 </span>
               </div>
               <p className="text-xs text-slate-300 mt-0.5">
-                Abra sem barra do navegador, em tela cheia com ícone personalizado na tela inicial do celular.
+                Instale com 1 clique. Abre sem barra de navegador, com ícone na tela inicial e abertura instantânea.
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2.5 w-full sm:w-auto shrink-0">
-            <a
-              href="/gestao-diaconal.apk"
-              download="GestaoDiaconal.apk"
-              onClick={() => setIsApkModalOpen(true)}
+            <button
+              onClick={() => {
+                installPWA();
+                setIsApkModalOpen(true);
+              }}
               className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs sm:text-sm shadow-lg shadow-emerald-950/50 border border-emerald-400/40 transition-all active:scale-95 cursor-pointer"
             >
-              <Download className="w-4 h-4" />
-              <span>Baixar Aplicativo (APK)</span>
-            </a>
+              <Smartphone className="w-4 h-4" />
+              <span>Instalar Aplicativo Nativo</span>
+            </button>
 
             <button
               onClick={() => setIsApkModalOpen(true)}
               className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs border border-slate-700 transition-all"
-              title="Instruções de Instalação"
+              title="Instruções de Instalação no Celular"
             >
               Como Instalar
             </button>
@@ -623,7 +624,7 @@ export const DashboardView: React.FC = () => {
         grupoTarget={escalaGrupo}
       />
 
-      {/* Modal de Instalação do Aplicativo Android (APK & PWA) */}
+      {/* Modal de Instalação do Aplicativo Android (WebAPK & PWA) */}
       {isApkModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
           <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5 relative max-h-[90vh] overflow-y-auto">
@@ -639,57 +640,66 @@ export const DashboardView: React.FC = () => {
                 <Smartphone className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-lg font-black text-white">Instalar Aplicativo Android</h3>
-                <p className="text-xs text-emerald-400 font-semibold">Modo Nativo Standalone & Tela Cheia</p>
+                <h3 className="text-lg font-black text-white">Instalar Aplicativo Android Nativo</h3>
+                <p className="text-xs text-emerald-400 font-semibold">WebAPK Standalone • Sem Barra do Navegador</p>
               </div>
             </div>
 
             <div className="space-y-3 bg-slate-950/70 border border-slate-800/80 rounded-2xl p-4 text-xs text-slate-300">
               <div className="flex items-start gap-2.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <span><strong>Sem Barra de Navegador:</strong> Abre exatamente como um app nativo baixado da Play Store.</span>
+                <span><strong>Sem Erro de Pacote:</strong> Instalação nativa direta pelo Chrome ou Samsung Internet (geração de WebAPK automático).</span>
               </div>
               <div className="flex items-start gap-2.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <span><strong>Ícone & Splash Screen:</strong> Acesso direto na tela inicial do celular com abertura instantânea.</span>
+                <span><strong>Ícone & Splash Screen:</strong> Cria o ícone oficial na gaveta de apps e na tela inicial do Android.</span>
               </div>
               <div className="flex items-start gap-2.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <span><strong>Funcionalidade 100% Sincronizada:</strong> Todos os dados de escalas, avisos, visitantes e financeiro em tempo real.</span>
+                <span><strong>Modo Tela Cheia:</strong> Roda 100% independente sem barra de endereços ou menus do navegador.</span>
               </div>
             </div>
 
             <div className="space-y-3 text-left">
-              <h4 className="text-xs font-extrabold text-slate-200 uppercase tracking-wider">Passo a Passo para Instalar o APK:</h4>
-              <ol className="space-y-2 text-xs text-slate-300 list-decimal list-inside bg-slate-950/40 p-3 rounded-xl border border-slate-800/50">
-                <li className="leading-relaxed">Clique no botão verde <strong>"Baixar Arquivo APK"</strong> abaixo para realizar o download do pacote do aplicativo.</li>
-                <li className="leading-relaxed">Após o término do download, abra o arquivo <strong>GestaoDiaconal.apk</strong> na barra de notificações ou pasta Downloads.</li>
-                <li className="leading-relaxed">Se o Android perguntar, selecione <strong>Permitir instalação de fontes desconhecidas</strong> para este arquivo.</li>
-                <li className="leading-relaxed">Clique em <strong>Instalar</strong>. O ícone do app será adicionado à sua tela inicial!</li>
-              </ol>
+              <h4 className="text-xs font-extrabold text-slate-200 uppercase tracking-wider">Como Instalar no Android em 2 Passos Simples:</h4>
+              <div className="space-y-2 text-xs text-slate-300 bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800">
+                <div className="p-2.5 bg-emerald-950/40 border border-emerald-500/30 rounded-xl">
+                  <p className="font-extrabold text-emerald-300 mb-1">Método 1: Botão Direto (Recomendado)</p>
+                  <p className="text-slate-300 leading-relaxed">
+                    Clique no botão verde <strong>"Instalar Aplicativo Nativo"</strong> abaixo. O Android abrirá o prompt oficial para instalar o app na tela inicial.
+                  </p>
+                </div>
+
+                <div className="p-2.5 bg-slate-900 border border-slate-800 rounded-xl">
+                  <p className="font-extrabold text-slate-200 mb-1">Método 2: Menu do Navegador</p>
+                  <p className="text-slate-300 leading-relaxed">
+                    No Chrome do Android, toque nos <strong>3 pontinhos (⋮)</strong> no canto superior e selecione <strong>"Instalar Aplicativo"</strong> ou <strong>"Adicionar à Tela Inicial"</strong>.
+                  </p>
+                </div>
+              </div>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-2.5 pt-2 border-t border-slate-800">
-              <a
-                href="/gestao-diaconal.apk"
-                download="GestaoDiaconal.apk"
-                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-emerald-950/60 border border-emerald-400/40 transition-all cursor-pointer text-center"
-              >
-                <Download className="w-4 h-4" />
-                <span>Baixar Arquivo APK</span>
-              </a>
-
               <button
                 type="button"
                 onClick={() => {
                   installPWA();
                   setIsApkModalOpen(false);
                 }}
-                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm border border-blue-400/40 transition-all cursor-pointer"
+                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-emerald-950/60 border border-emerald-400/40 transition-all cursor-pointer text-center"
               >
                 <Smartphone className="w-4 h-4" />
-                <span>Instalar via PWA (Navegador)</span>
+                <span>Instalar Aplicativo Nativo</span>
               </button>
+
+              <a
+                href="/gestao-diaconal.apk"
+                download="GestaoDiaconal.apk"
+                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs sm:text-sm border border-slate-700 transition-all text-center"
+              >
+                <Download className="w-4 h-4" />
+                <span>Baixar APK Direto</span>
+              </a>
             </div>
           </div>
         </div>
