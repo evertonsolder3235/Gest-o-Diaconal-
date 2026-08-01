@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { useRegisterBackHandler } from '../../hooks/useBackButton';
 import { Obreiro, DepartamentoChurch, ObreiroStatus } from '../../types';
 import {
   ShieldCheck,
@@ -53,11 +52,6 @@ export const ObreirosView: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Obreiro | null>(null);
   const [viewingItem, setViewingItem] = useState<Obreiro | null>(null);
-
-  useRegisterBackHandler(isModalOpen || !!viewingItem, () => {
-    setIsModalOpen(false);
-    setViewingItem(null);
-  });
 
   // Form State matching prompt requirements exactly
   const [nomeCompleto, setNomeCompleto] = useState('');

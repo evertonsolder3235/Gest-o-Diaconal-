@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { useRegisterBackHandler } from '../../hooks/useBackButton';
 import { ContribuicaoFinanceira, TipoContribuicao } from '../../types';
 import {
   Wallet,
@@ -50,11 +49,6 @@ export const FinanceiroView: React.FC = () => {
   const [editingItem, setEditingItem] = useState<ContribuicaoFinanceira | null>(null);
   const [viewingProofItem, setViewingProofItem] = useState<ContribuicaoFinanceira | null>(null);
   const [showValue, setShowValue] = useState<boolean>(false);
-
-  useRegisterBackHandler(isModalOpen || !!viewingProofItem, () => {
-    setIsModalOpen(false);
-    setViewingProofItem(null);
-  });
 
   // Form State matching prompt specifications exactly
   const [tipoContribuicao, setTipoContribuicao] = useState<TipoContribuicao>('Dízimo');

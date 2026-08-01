@@ -26,7 +26,6 @@ import {
   ZoomIn
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { useRegisterBackHandler } from '../../hooks/useBackButton';
 import { ItemEscala, LugarEscala } from '../../types';
 
 interface EscalaModalProps {
@@ -73,11 +72,6 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
   // Form State for adding/editing a schedule item
   const [showItemForm, setShowItemForm] = useState<boolean>(false);
   const [editingItem, setEditingItem] = useState<ItemEscala | null>(null);
-
-  // Register back button handlers for EscalaModal overlays
-  useRegisterBackHandler(isOpen, onClose);
-  useRegisterBackHandler(!!fullScreenImage, () => setFullScreenImage(null));
-  useRegisterBackHandler(showItemForm, () => setShowItemForm(false));
 
   const [formData, setFormData] = useState<{
     data: string;

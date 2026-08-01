@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { useRegisterBackHandler } from '../../hooks/useBackButton';
 import { ChurchLogo } from '../ChurchLogo';
 import { EscalaModal } from '../modals/EscalaModal';
 import { PWAPromptBanner } from '../PWAPromptBanner';
@@ -48,8 +47,6 @@ export const DashboardView: React.FC = () => {
   const [escalaModalOpen, setEscalaModalOpen] = useState(false);
   const [escalaGrupo, setEscalaGrupo] = useState<'Homens' | 'Mulheres'>('Homens');
   const [showFinanceiroValue, setShowFinanceiroValue] = useState<boolean>(false);
-
-  useRegisterBackHandler(escalaModalOpen, () => setEscalaModalOpen(false));
 
   const totalVisitantes = visitantes.length;
   const visitantesNovos = visitantes.filter(v => v.status === 'Novo').length;

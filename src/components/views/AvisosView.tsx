@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { useRegisterBackHandler } from '../../hooks/useBackButton';
 import { Aviso } from '../../types';
 
 const formatDateBR = (dateStr?: string) => {
@@ -43,8 +42,6 @@ export const AvisosView: React.FC = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Aviso | null>(null);
-
-  useRegisterBackHandler(isModalOpen, () => setIsModalOpen(false));
 
   // Form State
   const [titulo, setTitulo] = useState('');

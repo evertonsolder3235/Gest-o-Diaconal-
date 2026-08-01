@@ -1,16 +1,12 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { useRegisterBackHandler } from '../hooks/useBackButton';
 import { AlertTriangle, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export const ConfirmModal: React.FC = () => {
   const { confirmModal, closeConfirmModal } = useApp();
 
-  const isOpen = !!(confirmModal && confirmModal.isOpen);
-  useRegisterBackHandler(isOpen, closeConfirmModal);
-
-  if (!isOpen) return null;
+  if (!confirmModal || !confirmModal.isOpen) return null;
 
   return (
     <AnimatePresence>
