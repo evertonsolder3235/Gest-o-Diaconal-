@@ -3,20 +3,13 @@ import { useApp } from '../../context/AppContext';
 import { ChurchLogo } from '../ChurchLogo';
 import {
   Settings,
-  Building2,
-  Download,
-  Upload,
-  User as UserIcon,
-  HardDrive
+  Building2
 } from 'lucide-react';
 
 export const ConfiguracoesView: React.FC = () => {
   const {
     config,
     updateConfig,
-    currentUser,
-    exportBackup,
-    importBackup,
     requestAdminAuth
   } = useApp();
 
@@ -55,20 +48,6 @@ export const ConfiguracoesView: React.FC = () => {
     }, 'Salvar Configurações da Igreja');
   };
 
-  const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const content = event.target?.result as string;
-        if (content) {
-          importBackup(content);
-        }
-      };
-      reader.readAsText(file);
-    }
-  };
-
   return (
     <div className="space-y-6 pb-12 max-w-4xl mx-auto">
       {/* Page Title */}
@@ -80,7 +59,7 @@ export const ConfiguracoesView: React.FC = () => {
           <div>
             <h2 className="text-xl font-extrabold text-slate-100">Configurações</h2>
             <p className="text-xs text-slate-400 mt-0.5">
-              Identidade da igreja e gerenciamento de dados de backup
+              Identidade e dados oficiais da igreja
             </p>
           </div>
         </div>
@@ -204,58 +183,6 @@ export const ConfiguracoesView: React.FC = () => {
           </div>
         </form>
       </div>
-
-      {/* 2. BACKUP & DATA MANAGEMENT */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-        <div className="flex items-center gap-2.5 mb-2">
-          <HardDrive className="w-5 h-5 text-blue-400" />
-          <h3 className="font-bold text-slate-100 text-sm">Backup & Restauração de Dados</h3>
-        </div>
-        <p className="text-xs text-slate-400 mb-5">
-          Exporte um arquivo de segurança com todos os visitantes, obreiros, orações e lançamentos financeiros.
-        </p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <button
-            onClick={exportBackup}
-            className="flex items-center justify-center gap-2 p-3.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 text-slate-200 text-xs font-bold transition-all"
-          >
-            <Download className="w-4 h-4 text-emerald-400" />
-            <span>Exportar Backup (JSON)</span>
-          </button>
-
-          <label className="flex items-center justify-center gap-2 p-3.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 text-slate-200 text-xs font-bold cursor-pointer transition-all">
-            <Upload className="w-4 h-4 text-blue-400" />
-            <span>Restaurar Backup</span>
-            <input
-              type="file"
-              accept=".json"
-              onChange={handleImportFile}
-              className="hidden"
-            />
-          </label>
-        </div>
-      </div>
-
-      {/* 4. USER & SYSTEM INFO BADGE */}
-      {currentUser && (
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 flex items-center justify-between text-xs">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-300">
-              <UserIcon className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="font-bold text-slate-200 block">{currentUser.nome}</span>
-              <span className="text-blue-400 font-medium">{currentUser.cargo} ({currentUser.email})</span>
-            </div>
-          </div>
-
-          <div className="text-right text-[11px] text-slate-500 font-mono">
-            <span>Sessão Ativa</span>
-            <span className="block text-slate-600">ID: {currentUser.id}</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
