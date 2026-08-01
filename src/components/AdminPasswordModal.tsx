@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
+import { useRegisterBackHandler } from '../hooks/useBackButton';
 import { Lock, X, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -9,6 +10,9 @@ export const AdminPasswordModal: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(false);
 
+  const isOpen = !!(adminAuthModal && adminAuthModal.isOpen);
+  useRegisterBackHandler(isOpen, closeAdminAuthModal);
+
   useEffect(() => {
     if (adminAuthModal.isOpen) {
       setPassword('');
@@ -17,7 +21,7 @@ export const AdminPasswordModal: React.FC = () => {
     }
   }, [adminAuthModal.isOpen]);
 
-  if (!adminAuthModal || !adminAuthModal.isOpen) return null;
+  if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
