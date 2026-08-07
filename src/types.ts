@@ -113,6 +113,7 @@ export interface IgrejaConfig {
   email: string;
   chavePix?: string;
   logoUrl?: string;
+  senhaAdmin?: string;
 }
 
 export type ViewTab = 

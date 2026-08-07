@@ -21,6 +21,7 @@ export const ConfiguracoesView: React.FC = () => {
   const [telefone, setTelefone] = useState(config.telefone);
   const [email, setEmail] = useState(config.email);
   const [chavePix, setChavePix] = useState(config.chavePix || '');
+  const [senhaAdmin, setSenhaAdmin] = useState(config.senhaAdmin || 'Adbrassede##');
 
   // Keep local fields in sync with context updates/restores
   useEffect(() => {
@@ -31,6 +32,7 @@ export const ConfiguracoesView: React.FC = () => {
     setTelefone(config.telefone || '');
     setEmail(config.email || '');
     setChavePix(config.chavePix || '');
+    setSenhaAdmin(config.senhaAdmin || 'Adbrassede##');
   }, [config]);
 
   const handleSaveConfig = (e: React.FormEvent) => {
@@ -43,7 +45,8 @@ export const ConfiguracoesView: React.FC = () => {
         endereco,
         telefone,
         email,
-        chavePix
+        chavePix,
+        senhaAdmin
       });
     }, 'Salvar Configurações da Igreja');
   };
@@ -150,7 +153,7 @@ export const ConfiguracoesView: React.FC = () => {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1">Telefone da Secretaria</label>
               <input
@@ -169,6 +172,19 @@ export const ConfiguracoesView: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-100 focus:outline-none focus:border-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">
+                Senha Administrativa
+              </label>
+              <input
+                type="text"
+                value={senhaAdmin}
+                onChange={(e) => setSenhaAdmin(e.target.value)}
+                placeholder="Ex: Adbrassede##"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-100 focus:outline-none focus:border-blue-500 font-mono text-emerald-400 font-bold"
               />
             </div>
           </div>

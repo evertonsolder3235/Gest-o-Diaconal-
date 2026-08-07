@@ -17,7 +17,8 @@ export const initialConfig: IgrejaConfig = {
   endereco: 'Rua das Palmeiras, 150 - Centro',
   telefone: '(11) 98765-4321',
   email: 'contato@adbrassede.org',
-  chavePix: 'pix@adbrassede.org'
+  chavePix: 'pix@adbrassede.org',
+  senhaAdmin: 'Adbrassede##'
 };
 
 export const initialUsers: User[] = [
