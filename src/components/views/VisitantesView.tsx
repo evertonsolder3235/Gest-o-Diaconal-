@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { useRegisterBackHandler } from '../../hooks/useBackButton';
 import { Visitante, VisitanteStatus } from '../../types';
 import {
   Users,
@@ -36,6 +37,8 @@ export const VisitantesView: React.FC = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Visitante | null>(null);
+
+  useRegisterBackHandler(isModalOpen, () => setIsModalOpen(false));
 
   // Form State
   const [nome, setNome] = useState('');

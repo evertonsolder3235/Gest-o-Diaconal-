@@ -26,6 +26,7 @@ import {
   ZoomIn
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { useRegisterBackHandler } from '../../hooks/useBackButton';
 import { ItemEscala, LugarEscala } from '../../types';
 
 interface EscalaModalProps {
@@ -72,6 +73,11 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
   // Form State for adding/editing a schedule item
   const [showItemForm, setShowItemForm] = useState<boolean>(false);
   const [editingItem, setEditingItem] = useState<ItemEscala | null>(null);
+
+  // Register back button handlers for EscalaModal overlays
+  useRegisterBackHandler(isOpen, onClose);
+  useRegisterBackHandler(!!fullScreenImage, () => setFullScreenImage(null));
+  useRegisterBackHandler(showItemForm, () => setShowItemForm(false));
 
   const [formData, setFormData] = useState<{
     data: string;
@@ -164,24 +170,44 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
 
   const todayStr = useMemo(() => getFormattedDate(new Date()), []);
 
-  // Current Week calculation (Monday through Sunday for current week)
+  const [weekOffset, setWeekOffset] = useState<number>(0);
+
+  // Helper to format start/end date range for week option dropdown
+  const getWeekRangeLabel = (offset: number) => {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    start.setDate(start.getDate() + offset * 7);
+
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+
+    const startStr = start.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    const endStr = end.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+
+    if (offset === 0) return `Esta Semana (${startStr} a ${endStr})`;
+    if (offset === 1) return `Próxima Semana (${startStr} a ${endStr})`;
+    if (offset === -1) return `Semana Anterior (${startStr} a ${endStr})`;
+    if (offset > 1) return `Em ${offset} semanas (${startStr} a ${endStr})`;
+    return `${Math.abs(offset)} semanas atrás (${startStr} a ${endStr})`;
+  };
+
+  // Week calculation based on weekOffset (7 consecutive days)
   const weekDates = useMemo(() => {
-    const today = new Date();
-    const dayOfWeek = today.getDay(); // 0 = Sun, 1 = Mon...
-    const startOfWeek = new Date(today);
-    const diffToMon = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-    startOfWeek.setDate(today.getDate() + diffToMon);
+    const startDate = new Date();
+    startDate.setHours(0, 0, 0, 0);
+    startDate.setDate(startDate.getDate() + weekOffset * 7);
 
     const weekDays = [];
     for (let i = 0; i < 7; i++) {
-      const d = new Date(startOfWeek);
-      d.setDate(startOfWeek.getDate() + i);
+      const d = new Date(startDate);
+      d.setDate(startDate.getDate() + i);
       weekDays.push(d);
     }
     return weekDays;
-  }, []);
+  }, [weekOffset]);
 
-  // Sort week dates so current day (HOJE) is ALWAYS at the very top
+  // Sort week dates so current day (HOJE) is ALWAYS at the very top as featured destaque,
+  // and all other days follow in strict ascending date order (ex: 7, 8, 9, 10, 11, 12, 13)
   const sortedWeekDates = useMemo(() => {
     return [...weekDates].sort((a, b) => {
       const dateStrA = getFormattedDate(a);
@@ -190,33 +216,14 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
       const isTodayA = dateStrA === todayStr;
       const isTodayB = dateStrB === todayStr;
 
-      // Today ALWAYS comes first at the very top
+      // Today ALWAYS comes first at the top
       if (isTodayA && !isTodayB) return -1;
       if (!isTodayA && isTodayB) return 1;
 
-      const itemsA = groupEscalas.filter((i) => i.data === dateStrA);
-      const itemsB = groupEscalas.filter((i) => i.data === dateStrB);
-
-      const isPastA = dateStrA < todayStr;
-      const isPastB = dateStrB < todayStr;
-
-      const getRank = (isPast: boolean, count: number) => {
-        if (!isPast && count > 0) return 1; // Future with active service
-        if (!isPast && count === 0) return 2; // Future without service
-        if (isPast && count > 0) return 3; // Past with active service
-        return 4; // Past without service
-      };
-
-      const rankA = getRank(isPastA, itemsA.length);
-      const rankB = getRank(isPastB, itemsB.length);
-
-      if (rankA !== rankB) {
-        return rankA - rankB;
-      }
-
+      // Subsequent days in strict ascending date order
       return dateStrA.localeCompare(dateStrB);
     });
-  }, [weekDates, groupEscalas, todayStr]);
+  }, [weekDates, todayStr]);
 
   if (!isOpen) return null;
 
@@ -409,9 +416,7 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
                   {viewMode === 'semanal' ? 'Visão Semanal' : 'Montagem Mensal'}
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
-                Postos: <strong className="text-slate-200">ALTAR, BANHEIRO, ESTACIONAMENTO, GALERIA, INTERCESSÃO, RECEPÇÃO</strong>
-              </p>
+
             </div>
           </div>
 
@@ -492,16 +497,69 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
           {/* VIEW MODE 1: ESCALA SEMANAL */}
           {viewMode === 'semanal' && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between bg-slate-950 p-3.5 rounded-xl border border-slate-800">
-                <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
-                  <CalendarIcon className={`w-4 h-4 ${isMulheres ? 'text-pink-400' : 'text-blue-400'}`} />
-                  <span>
-                    Semana Vigente:{' '}
-                    <strong className="text-white">
+              {/* Header com Filtro de Seleção de Semanas */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between bg-slate-950 p-3.5 rounded-xl border border-slate-800 gap-3">
+                <div className="flex items-center gap-2.5 text-xs sm:text-sm font-bold text-slate-300">
+                  <CalendarIcon className={`w-4 h-4 shrink-0 ${isMulheres ? 'text-pink-400' : 'text-blue-400'}`} />
+                  <div>
+                    <span className="text-slate-400 text-[11px] block font-semibold uppercase tracking-wider">
+                      {weekOffset === 0 ? 'Semana Vigente' : 'Semana Selecionada'}
+                    </span>
+                    <strong className="text-white text-sm sm:text-base font-bold">
                       {weekDates[0].toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })} até{' '}
                       {weekDates[6].toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
                     </strong>
-                  </span>
+                  </div>
+                </div>
+
+                {/* Controles de Navegação e Filtro de Semanas */}
+                <div className="flex items-center gap-2 self-stretch sm:self-auto justify-between sm:justify-end">
+                  <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-0.5 shadow-sm">
+                    <button
+                      type="button"
+                      onClick={() => setWeekOffset((prev) => prev - 1)}
+                      title="Semana anterior"
+                      className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-colors"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+
+                    <select
+                      value={weekOffset}
+                      onChange={(e) => setWeekOffset(Number(e.target.value))}
+                      className="bg-transparent text-xs font-semibold text-slate-200 px-2 py-1.5 focus:outline-none cursor-pointer border-none"
+                    >
+                      {[-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12].map((offset) => (
+                        <option key={offset} value={offset} className="bg-slate-900 text-white">
+                          {getWeekRangeLabel(offset)}
+                        </option>
+                      ))}
+                    </select>
+
+                    <button
+                      type="button"
+                      onClick={() => setWeekOffset((prev) => prev + 1)}
+                      title="Próxima semana"
+                      className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-colors"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {weekOffset !== 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setWeekOffset(0)}
+                      className={`text-xs px-2.5 py-1.5 rounded-lg font-bold transition-all shadow-sm flex items-center gap-1 shrink-0 ${
+                        isMulheres
+                          ? 'bg-pink-600/30 text-pink-300 border border-pink-500/50 hover:bg-pink-600/50'
+                          : 'bg-blue-600/30 text-blue-300 border border-blue-500/50 hover:bg-blue-600/50'
+                      }`}
+                      title="Voltar para a semana atual"
+                    >
+                      <span>Hoje</span>
+                    </button>
+                  )}
                 </div>
               </div>
 

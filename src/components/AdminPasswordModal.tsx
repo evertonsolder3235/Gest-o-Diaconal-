@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
+import { useRegisterBackHandler } from '../hooks/useBackButton';
 import { Lock, X, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -8,16 +9,23 @@ export const AdminPasswordModal: React.FC = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const isOpen = !!(adminAuthModal && adminAuthModal.isOpen);
+  useRegisterBackHandler(isOpen, closeAdminAuthModal);
 
   useEffect(() => {
-    if (adminAuthModal.isOpen) {
+    if (adminAuthModal && adminAuthModal.isOpen) {
       setPassword('');
       setError(false);
       setShowPassword(false);
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
     }
-  }, [adminAuthModal.isOpen]);
+  }, [adminAuthModal]);
 
-  if (!adminAuthModal || !adminAuthModal.isOpen) return null;
+  if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,12 +42,12 @@ export const AdminPasswordModal: React.FC = () => {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 10 }}
-          className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-md w-full shadow-2xl relative"
+          className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-md w-full shadow-2xl relative z-[101]"
         >
           <button
             onClick={closeAdminAuthModal}
@@ -69,6 +77,8 @@ export const AdminPasswordModal: React.FC = () => {
               </label>
               <div className="relative">
                 <input
+                  ref={inputRef}
+                  autoFocus
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => {

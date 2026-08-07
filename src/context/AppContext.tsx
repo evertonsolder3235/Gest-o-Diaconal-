@@ -172,6 +172,43 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [activeTab, setActiveTabState] = useState<ViewTab>('dashboard');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
+  // Device Back Button & History Synchronization
+  useEffect(() => {
+    try {
+      const currentState = window.history.state;
+      if (!currentState || !currentState.tab) {
+        window.history.replaceState({ tab: 'dashboard', type: 'app_navigation', root: true }, '');
+        if (activeTab !== 'dashboard') {
+          window.history.pushState({ tab: activeTab, type: 'app_navigation' }, '');
+        } else {
+          window.history.pushState({ tab: 'dashboard', type: 'app_navigation' }, '');
+        }
+      }
+    } catch (e) {
+      console.warn('Erro ao inicializar histórico:', e);
+    }
+
+    const handlePopState = (event: PopStateEvent) => {
+      if (event.state && event.state.tab) {
+        setActiveTabState(event.state.tab as ViewTab);
+      } else {
+        // Quando pressionar voltar no início do histórico (ex: na tela principal),
+        // garante navegação para o dashboard sem fechar o aplicativo.
+        setActiveTabState('dashboard');
+        try {
+          window.history.pushState({ tab: 'dashboard', type: 'app_navigation', root: true }, '');
+        } catch (e) {
+          console.warn('Erro ao reter histórico no aplicativo:', e);
+        }
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
   const [config, setConfig] = useState<IgrejaConfig>(() => {
     try {
       const saved = localStorage.getItem(LOCAL_STORAGE_KEY_PREFIX + 'config');
@@ -409,7 +446,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const setActiveTab = (tab: ViewTab) => {
-    setActiveTabState(tab);
+    if (tab !== activeTab) {
+      setActiveTabState(tab);
+      try {
+        window.history.pushState({ tab, type: 'app_navigation', timestamp: Date.now() }, '');
+      } catch (e) {
+        console.warn('Erro ao atualizar histórico:', e);
+      }
+    }
     markAsSeen(tab);
     setSearchQuery(''); // Reset search on tab switch
     window.scrollTo({ top: 0, behavior: 'smooth' });

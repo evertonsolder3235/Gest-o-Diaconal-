@@ -1,16 +1,20 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
+import { useRegisterBackHandler } from '../hooks/useBackButton';
 import { AlertTriangle, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export const ConfirmModal: React.FC = () => {
   const { confirmModal, closeConfirmModal } = useApp();
 
-  if (!confirmModal || !confirmModal.isOpen) return null;
+  const isOpen = !!(confirmModal && confirmModal.isOpen);
+  useRegisterBackHandler(isOpen, closeConfirmModal);
+
+  if (!isOpen) return null;
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}

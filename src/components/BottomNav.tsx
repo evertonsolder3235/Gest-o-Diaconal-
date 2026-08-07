@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { useRegisterBackHandler } from '../hooks/useBackButton';
 import { ViewTab } from '../types';
 import {
   LayoutDashboard,
@@ -19,6 +20,8 @@ import { motion, AnimatePresence } from 'motion/react';
 export const BottomNav: React.FC = () => {
   const { activeTab, setActiveTab, logout } = useApp();
   const [isMoreOpen, setIsMoreOpen] = useState(false);
+
+  useRegisterBackHandler(isMoreOpen, () => setIsMoreOpen(false));
 
   const mainTabs: { id: ViewTab; label: string; icon: React.ElementType }[] = [
     { id: 'dashboard', label: 'Início', icon: LayoutDashboard },
