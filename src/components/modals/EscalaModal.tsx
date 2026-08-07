@@ -40,10 +40,11 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
   onClose,
   grupoTarget = 'Homens'
 }) => {
-  const { escalas, addEscalaItem, deleteEscalaItem, saveEscalasBulk, obreiros, showToast } = useApp();
+  const { escalas, addEscalaItem, deleteEscalaItem, saveEscalasBulk, obreiros, showToast, requestAdminAuth, isAdminUnlocked } = useApp();
 
   // Mode: 'semanal' | 'mensal'
   const [viewMode, setViewMode] = useState<'semanal' | 'mensal'>('semanal');
+  const [isMontarEscalaAuth, setIsMontarEscalaAuth] = useState<boolean>(false);
   const [fullScreenImage, setFullScreenImage] = useState<{ url: string; title?: string } | null>(null);
 
   // Close full screen photo on Escape key
@@ -57,9 +58,10 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [fullScreenImage]);
 
-  // Reset view mode when modal closes
+  // Reset view mode and auth when modal closes
   React.useEffect(() => {
     if (!isOpen) {
+      setIsMontarEscalaAuth(false);
       setViewMode('semanal');
       setFullScreenImage(null);
     }
@@ -279,39 +281,70 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
   };
 
   const handleOpenAddForm = (selectedDate?: string) => {
-    setEditingItem(null);
-    setFormData({
-      data: selectedDate || new Date().toISOString().slice(0, 10),
-      horario: '19:30',
-      lugar: 'ALTAR',
-      nomePessoa: '',
-      observacao: '',
-      fotoUrl: ''
-    });
-    setShowItemForm(true);
+    const openForm = () => {
+      setEditingItem(null);
+      setFormData({
+        data: selectedDate || new Date().toISOString().slice(0, 10),
+        horario: '19:30',
+        lugar: 'ALTAR',
+        nomePessoa: '',
+        observacao: '',
+        fotoUrl: ''
+      });
+      setShowItemForm(true);
+    };
+
+    if (isMontarEscalaAuth) {
+      openForm();
+    } else {
+      requestAdminAuth(() => {
+        setIsMontarEscalaAuth(true);
+        openForm();
+      }, 'Acesso Restrito: Adicionar à Escala', true);
+    }
   };
 
   const handleOpenEditForm = (item: ItemEscala) => {
-    setEditingItem(item);
-    setFormData({
-      data: item.data,
-      horario: item.horario,
-      lugar: item.lugar,
-      nomePessoa: item.nomePessoa,
-      observacao: item.observacao || '',
-      fotoUrl: item.fotoUrl || ''
-    });
-    setShowItemForm(true);
+    const openForm = () => {
+      setEditingItem(item);
+      setFormData({
+        data: item.data,
+        horario: item.horario,
+        lugar: item.lugar,
+        nomePessoa: item.nomePessoa,
+        observacao: item.observacao || '',
+        fotoUrl: item.fotoUrl || ''
+      });
+      setShowItemForm(true);
+    };
+
+    if (isMontarEscalaAuth) {
+      openForm();
+    } else {
+      requestAdminAuth(() => {
+        setIsMontarEscalaAuth(true);
+        openForm();
+      }, 'Acesso Restrito: Editar Escalado', true);
+    }
   };
 
   const handleDeleteItemLocal = (id: string) => {
-    setLocalEscalas((prev) => prev.filter((i) => i.id !== id));
-    showToast('info', 'Item removido da escala local.');
+    if (isMontarEscalaAuth) {
+      setLocalEscalas((prev) => prev.filter((i) => i.id !== id));
+      showToast('info', 'Item removido da escala local.');
+    } else {
+      requestAdminAuth(() => {
+        setIsMontarEscalaAuth(true);
+        setLocalEscalas((prev) => prev.filter((i) => i.id !== id));
+        showToast('info', 'Item removido da escala local.');
+      }, 'Acesso Restrito: Excluir da Escala', true);
+    }
   };
 
   // Final Save Escala Action
   const handleSaveAndShowWeekly = () => {
     saveEscalasBulk(localEscalas);
+    setIsMontarEscalaAuth(false);
     setViewMode('semanal');
   };
 
@@ -389,7 +422,10 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
 
           <div className="flex items-center gap-2">
             <button
-              onClick={onClose}
+              onClick={() => {
+                setIsMontarEscalaAuth(false);
+                onClose();
+              }}
               className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-all"
             >
               <X className="w-5 h-5" />
@@ -401,7 +437,10 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
         <div className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-5 py-3 bg-slate-900/50 border-b border-slate-800">
           <div className="flex items-center gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800">
             <button
-              onClick={() => setViewMode('semanal')}
+              onClick={() => {
+                setViewMode('semanal');
+                setIsMontarEscalaAuth(false);
+              }}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 viewMode === 'semanal'
                   ? isMulheres ? 'bg-pink-600 text-white shadow-md' : 'bg-blue-600 text-white shadow-md'
@@ -412,7 +451,12 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
               <span>Escala Semanal</span>
             </button>
             <button
-              onClick={() => setViewMode('mensal')}
+              onClick={() => {
+                requestAdminAuth(() => {
+                  setIsMontarEscalaAuth(true);
+                  setViewMode('mensal');
+                }, 'Acesso Restrito: Montar / Editar Escala Mensal', true);
+              }}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 viewMode === 'mensal'
                   ? isMulheres ? 'bg-pink-600 text-white shadow-md' : 'bg-blue-600 text-white shadow-md'
@@ -859,7 +903,7 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
 
         {/* SUB-MODAL: FORM FOR ADDING / EDITING ESCALADO */}
         {showItemForm && (
-          <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+          <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
             <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-5 shadow-2xl space-y-4">
               <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                 <h4 className="text-sm font-extrabold text-white flex items-center gap-2">

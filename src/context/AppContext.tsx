@@ -277,8 +277,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [confirmModal, setConfirmModal] = useState<ConfirmDeleteState | null>(null);
 
-  // Admin Protection State (unlocked by default so edits always save directly)
-  const [isAdminUnlocked, setIsAdminUnlocked] = useState(true);
+  // Admin Protection State
+  const [isAdminUnlocked, setIsAdminUnlocked] = useState(false);
   const [adminAuthModal, setAdminAuthModal] = useState<AdminAuthModalState>({ isOpen: false });
 
   const requestAdminAuth = (onSuccess: () => void, title?: string, forcePassword = false) => {
@@ -315,9 +315,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const action = adminAuthModal.onSuccess;
       setAdminAuthModal({ isOpen: false });
       if (action) {
-        setTimeout(() => {
-          action();
-        }, 50);
+        action();
       }
       return true;
     }
