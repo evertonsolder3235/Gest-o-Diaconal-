@@ -1,0 +1,99 @@
+{
+  "entities": {
+    "config": {
+      "title": "Configuração da Igreja",
+      "description": "Configurações gerais da igreja",
+      "fields": {
+        "nomeIgreja": { "type": "string" },
+        "subtitulo": { "type": "string" },
+        "pastorPresidente": { "type": "string" },
+        "endereco": { "type": "string" },
+        "telefone": { "type": "string" },
+        "email": { "type": "string" },
+        "chavePix": { "type": "string" },
+        "senhaAdmin": { "type": "string" }
+      }
+    },
+    "visitantes": {
+      "title": "Visitantes",
+      "fields": {
+        "nome": { "type": "string" },
+        "telefone": { "type": "string" },
+        "email": { "type": "string" },
+        "dataVisita": { "type": "string" },
+        "status": { "type": "string" },
+        "observacao": { "type": "string" }
+      }
+    },
+    "aniversariantes": {
+      "title": "Aniversariantes e Comemorações",
+      "fields": {
+        "nome": { "type": "string" },
+        "tipoComemoracao": { "type": "string" },
+        "data": { "type": "string" },
+        "telefone": { "type": "string" },
+        "observacao": { "type": "string" }
+      }
+    },
+    "obreiros": {
+      "title": "Obreiros",
+      "fields": {
+        "nomeCompleto": { "type": "string" },
+        "telefone": { "type": "string" },
+        "dataNascimento": { "type": "string" },
+        "departamento": { "type": "string" },
+        "cargoMinistério": { "type": "string" },
+        "status": { "type": "string" },
+        "rua": { "type": "string" },
+        "numero": { "type": "string" },
+        "bairro": { "type": "string" },
+        "observacao": { "type": "string" },
+        "fotoUrl": { "type": "string" }
+      }
+    },
+    "pedidos": {
+      "title": "Pedidos de Oração",
+      "fields": {
+        "nome": { "type": "string" },
+        "pedidoText": { "type": "string" },
+        "data": { "type": "string" },
+        "status": { "type": "string" },
+        "atendidoObservacao": { "type": "string" }
+      }
+    },
+    "avisos": {
+      "title": "Avisos e Recados",
+      "fields": {
+        "titulo": { "type": "string" },
+        "descricao": { "type": "string" },
+        "data": { "type": "string" },
+        "horario": { "type": "string" },
+        "fixado": { "type": "boolean" },
+        "autor": { "type": "string" }
+      }
+    },
+    "contribuicoes": {
+      "title": "Contribuições Financeiras",
+      "fields": {
+        "tipoContribuicao": { "type": "string" },
+        "nomeContribuinte": { "type": "string" },
+        "valor": { "type": "number" },
+        "data": { "type": "string" },
+        "observacaoRecado": { "type": "string" },
+        "comprovanteUrl": { "type": "string" },
+        "comprovanteNome": { "type": "string" }
+      }
+    },
+    "escalas": {
+      "title": "Escalas",
+      "fields": {
+        "grupo": { "type": "string" },
+        "data": { "type": "string" },
+        "nomePessoa": { "type": "string" },
+        "lugar": { "type": "string" },
+        "observacao": { "type": "string" },
+        "fotoUrl": { "type": "string" }
+      }
+    }
+  }
+}

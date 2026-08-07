@@ -25,6 +25,17 @@ import {
   initialContribuicoes,
   initialEscalas
 } from '../data/initialData';
+import {
+  db,
+  collection,
+  doc,
+  setDoc,
+  onSnapshot,
+  saveDocToFirestore,
+  removeDocFromFirestore,
+  removeMultipleDocsFromFirestore,
+  cleanForFirestore
+} from '../lib/firebase';
 
 interface ConfirmDeleteState {
   isOpen: boolean;
@@ -497,13 +508,121 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return true;
   };
 
+  // -------------------------------------------------------------
+  // Real-Time Firebase Firestore Subscriptions & Initial Seeding
+  // -------------------------------------------------------------
+  useEffect(() => {
+    // 1. Config subscription
+    const configDocRef = doc(db, 'config', 'igreja');
+    const unsubConfig = onSnapshot(configDocRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.data() as IgrejaConfig;
+        setConfig((prev) => ({ ...prev, ...data }));
+      } else {
+        setDoc(configDocRef, cleanForFirestore(config), { merge: true }).catch(() => {});
+      }
+    });
+
+    // 2. Visitantes subscription
+    const unsubVisitantes = onSnapshot(collection(db, 'visitantes'), (snapshot) => {
+      if (!snapshot.empty) {
+        const list: Visitante[] = [];
+        snapshot.forEach((d) => list.push({ id: d.id, ...d.data() } as Visitante));
+        setVisitantes(list);
+      } else {
+        initialVisitantes.forEach((item) => saveDocToFirestore('visitantes', item));
+      }
+    });
+
+    // 3. Aniversariantes subscription
+    const unsubAniversariantes = onSnapshot(collection(db, 'aniversariantes'), (snapshot) => {
+      if (!snapshot.empty) {
+        const list: Aniversariante[] = [];
+        snapshot.forEach((d) => list.push({ id: d.id, ...d.data() } as Aniversariante));
+        setAniversariantes(list);
+      } else {
+        initialAniversariantes.forEach((item) => saveDocToFirestore('aniversariantes', item));
+      }
+    });
+
+    // 4. Obreiros subscription
+    const unsubObreiros = onSnapshot(collection(db, 'obreiros'), (snapshot) => {
+      if (!snapshot.empty) {
+        const list: Obreiro[] = [];
+        snapshot.forEach((d) => list.push({ id: d.id, ...d.data() } as Obreiro));
+        setObreiros(list);
+      } else {
+        initialObreiros.forEach((item) => saveDocToFirestore('obreiros', item));
+      }
+    });
+
+    // 5. Pedidos subscription
+    const unsubPedidos = onSnapshot(collection(db, 'pedidos'), (snapshot) => {
+      if (!snapshot.empty) {
+        const list: PedidoOracao[] = [];
+        snapshot.forEach((d) => list.push({ id: d.id, ...d.data() } as PedidoOracao));
+        setPedidos(list);
+      } else {
+        initialPedidosOracao.forEach((item) => saveDocToFirestore('pedidos', item));
+      }
+    });
+
+    // 6. Avisos subscription
+    const unsubAvisos = onSnapshot(collection(db, 'avisos'), (snapshot) => {
+      if (!snapshot.empty) {
+        const list: Aviso[] = [];
+        snapshot.forEach((d) => list.push({ id: d.id, ...d.data() } as Aviso));
+        setAvisos(list);
+      } else {
+        initialAvisos.forEach((item) => saveDocToFirestore('avisos', item));
+      }
+    });
+
+    // 7. Contribuicoes subscription
+    const unsubContribuicoes = onSnapshot(collection(db, 'contribuicoes'), (snapshot) => {
+      if (!snapshot.empty) {
+        const list: ContribuicaoFinanceira[] = [];
+        snapshot.forEach((d) => list.push({ id: d.id, ...d.data() } as ContribuicaoFinanceira));
+        setContribuicoes(list);
+      } else {
+        initialContribuicoes.forEach((item) => saveDocToFirestore('contribuicoes', item));
+      }
+    });
+
+    // 8. Escalas subscription
+    const unsubEscalas = onSnapshot(collection(db, 'escalas'), (snapshot) => {
+      if (!snapshot.empty) {
+        const list: ItemEscala[] = [];
+        snapshot.forEach((d) => list.push({ id: d.id, ...d.data() } as ItemEscala));
+        setEscalas(list);
+      } else {
+        initialEscalas.forEach((item) => saveDocToFirestore('escalas', item));
+      }
+    });
+
+    return () => {
+      unsubConfig();
+      unsubVisitantes();
+      unsubAniversariantes();
+      unsubObreiros();
+      unsubPedidos();
+      unsubAvisos();
+      unsubContribuicoes();
+      unsubEscalas();
+    };
+  }, []);
+
   const logout = () => {
     setCurrentUser(initialUsers[0]);
     showToast('info', 'Sessão reiniciada com sucesso.');
   };
 
   const updateConfig = (cfg: Partial<IgrejaConfig>) => {
-    setConfig((prev) => ({ ...prev, ...cfg }));
+    setConfig((prev) => {
+      const updated = { ...prev, ...cfg };
+      setDoc(doc(db, 'config', 'igreja'), cleanForFirestore(updated), { merge: true }).catch(() => {});
+      return updated;
+    });
     showToast('success', 'Configurações da igreja atualizadas com sucesso.');
   };
 
@@ -514,24 +633,34 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       id: 'v-' + Date.now()
     };
     setVisitantes((prev) => [newRecord, ...prev]);
+    saveDocToFirestore('visitantes', newRecord);
     setUnseenModules((prev) => ({ ...prev, visitantes: true }));
     showToast('success', 'Visitante cadastrado com sucesso.');
   };
 
   const updateVisitante = (id: string, data: Partial<Visitante>) => {
     setVisitantes((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, ...data } : item))
+      prev.map((item) => {
+        if (item.id === id) {
+          const updated = { ...item, ...data };
+          saveDocToFirestore('visitantes', updated);
+          return updated;
+        }
+        return item;
+      })
     );
     showToast('success', 'Registro atualizado com sucesso.');
   };
 
   const deleteVisitante = (id: string) => {
     setVisitantes((prev) => prev.filter((item) => item.id !== id));
+    removeDocFromFirestore('visitantes', id);
     showToast('success', 'Registro excluído com sucesso.');
   };
 
   const deleteMultipleVisitantes = (ids: string[]) => {
     setVisitantes((prev) => prev.filter((item) => !ids.includes(item.id)));
+    removeMultipleDocsFromFirestore('visitantes', ids);
     showToast('success', `${ids.length} visitante(s) excluído(s) com sucesso.`);
   };
 
@@ -542,24 +671,34 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       id: 'a-' + Date.now()
     };
     setAniversariantes((prev) => [newRecord, ...prev]);
+    saveDocToFirestore('aniversariantes', newRecord);
     setUnseenModules((prev) => ({ ...prev, aniversariantes: true }));
     showToast('success', 'Comemoração cadastrada com sucesso.');
   };
 
   const updateAniversariante = (id: string, data: Partial<Aniversariante>) => {
     setAniversariantes((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, ...data } : item))
+      prev.map((item) => {
+        if (item.id === id) {
+          const updated = { ...item, ...data };
+          saveDocToFirestore('aniversariantes', updated);
+          return updated;
+        }
+        return item;
+      })
     );
     showToast('success', 'Registro atualizado com sucesso.');
   };
 
   const deleteAniversariante = (id: string) => {
     setAniversariantes((prev) => prev.filter((item) => item.id !== id));
+    removeDocFromFirestore('aniversariantes', id);
     showToast('success', 'Registro excluído com sucesso.');
   };
 
   const deleteMultipleAniversariantes = (ids: string[]) => {
     setAniversariantes((prev) => prev.filter((item) => !ids.includes(item.id)));
+    removeMultipleDocsFromFirestore('aniversariantes', ids);
     showToast('success', `${ids.length} comemoração(ões) excluída(s) com sucesso.`);
   };
 
@@ -570,24 +709,34 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       id: 'ob-' + Date.now()
     };
     setObreiros((prev) => [newRecord, ...prev]);
+    saveDocToFirestore('obreiros', newRecord);
     setUnseenModules((prev) => ({ ...prev, obreiros: true }));
     showToast('success', 'Obreiro cadastrado com sucesso.');
   };
 
   const updateObreiro = (id: string, data: Partial<Obreiro>) => {
     setObreiros((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, ...data } : item))
+      prev.map((item) => {
+        if (item.id === id) {
+          const updated = { ...item, ...data };
+          saveDocToFirestore('obreiros', updated);
+          return updated;
+        }
+        return item;
+      })
     );
     showToast('success', 'Dados do obreiro atualizados com sucesso.');
   };
 
   const deleteObreiro = (id: string) => {
     setObreiros((prev) => prev.filter((item) => item.id !== id));
+    removeDocFromFirestore('obreiros', id);
     showToast('success', 'Obreiro excluído com sucesso.');
   };
 
   const deleteMultipleObreiros = (ids: string[]) => {
     setObreiros((prev) => prev.filter((item) => !ids.includes(item.id)));
+    removeMultipleDocsFromFirestore('obreiros', ids);
     showToast('success', `${ids.length} obreiro(s) excluído(s) com sucesso.`);
   };
 
@@ -598,24 +747,34 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       id: 'p-' + Date.now()
     };
     setPedidos((prev) => [newRecord, ...prev]);
+    saveDocToFirestore('pedidos', newRecord);
     setUnseenModules((prev) => ({ ...prev, pedidos: true }));
     showToast('success', 'Pedido de oração adicionado com sucesso.');
   };
 
   const updatePedido = (id: string, data: Partial<PedidoOracao>) => {
     setPedidos((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, ...data } : item))
+      prev.map((item) => {
+        if (item.id === id) {
+          const updated = { ...item, ...data };
+          saveDocToFirestore('pedidos', updated);
+          return updated;
+        }
+        return item;
+      })
     );
     showToast('success', 'Pedido atualizado com sucesso.');
   };
 
   const deletePedido = (id: string) => {
     setPedidos((prev) => prev.filter((item) => item.id !== id));
+    removeDocFromFirestore('pedidos', id);
     showToast('success', 'Pedido de oração excluído com sucesso.');
   };
 
   const deleteMultiplePedidos = (ids: string[]) => {
     setPedidos((prev) => prev.filter((item) => !ids.includes(item.id)));
+    removeMultipleDocsFromFirestore('pedidos', ids);
     showToast('success', `${ids.length} pedido(s) excluído(s) com sucesso.`);
   };
 
@@ -626,30 +785,47 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       id: 'av-' + Date.now()
     };
     setAvisos((prev) => [newRecord, ...prev]);
+    saveDocToFirestore('avisos', newRecord);
     setUnseenModules((prev) => ({ ...prev, avisos: true }));
     showToast('success', 'Aviso publicado com sucesso.');
   };
 
   const updateAviso = (id: string, data: Partial<Aviso>) => {
     setAvisos((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, ...data } : item))
+      prev.map((item) => {
+        if (item.id === id) {
+          const updated = { ...item, ...data };
+          saveDocToFirestore('avisos', updated);
+          return updated;
+        }
+        return item;
+      })
     );
     showToast('success', 'Aviso atualizado com sucesso.');
   };
 
   const deleteAviso = (id: string) => {
     setAvisos((prev) => prev.filter((item) => item.id !== id));
+    removeDocFromFirestore('avisos', id);
     showToast('success', 'Aviso excluído com sucesso.');
   };
 
   const deleteMultipleAvisos = (ids: string[]) => {
     setAvisos((prev) => prev.filter((item) => !ids.includes(item.id)));
+    removeMultipleDocsFromFirestore('avisos', ids);
     showToast('success', `${ids.length} aviso(s) excluído(s) com sucesso.`);
   };
 
   const toggleFixarAviso = (id: string) => {
     setAvisos((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, fixado: !item.fixado } : item))
+      prev.map((item) => {
+        if (item.id === id) {
+          const updated = { ...item, fixado: !item.fixado };
+          saveDocToFirestore('avisos', updated);
+          return updated;
+        }
+        return item;
+      })
     );
     showToast('info', 'Destaque do aviso alterado.');
   };
@@ -661,24 +837,34 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       id: 'f-' + Date.now()
     };
     setContribuicoes((prev) => [newRecord, ...prev]);
+    saveDocToFirestore('contribuicoes', newRecord);
     setUnseenModules((prev) => ({ ...prev, financeiro: true }));
     showToast('success', 'Contribuição registrada com sucesso.');
   };
 
   const updateContribuicao = (id: string, data: Partial<ContribuicaoFinanceira>) => {
     setContribuicoes((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, ...data } : item))
+      prev.map((item) => {
+        if (item.id === id) {
+          const updated = { ...item, ...data };
+          saveDocToFirestore('contribuicoes', updated);
+          return updated;
+        }
+        return item;
+      })
     );
     showToast('success', 'Registro financeiro atualizado com sucesso.');
   };
 
   const deleteContribuicao = (id: string) => {
     setContribuicoes((prev) => prev.filter((item) => item.id !== id));
+    removeDocFromFirestore('contribuicoes', id);
     showToast('success', 'Registro financeiro excluído com sucesso.');
   };
 
   const deleteMultipleContribuicoes = (ids: string[]) => {
     setContribuicoes((prev) => prev.filter((item) => !ids.includes(item.id)));
+    removeMultipleDocsFromFirestore('contribuicoes', ids);
     showToast('success', `${ids.length} registro(s) financeiro(s) excluído(s) com sucesso.`);
   };
 
@@ -689,23 +875,33 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       id: 'e-' + Date.now() + Math.random().toString(36).substring(2, 5)
     };
     setEscalas((prev) => [...prev, newItem]);
+    saveDocToFirestore('escalas', newItem);
     showToast('success', 'Item adicionado à escala com sucesso.');
   };
 
   const updateEscalaItem = (id: string, data: Partial<ItemEscala>) => {
     setEscalas((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, ...data } : item))
+      prev.map((item) => {
+        if (item.id === id) {
+          const updated = { ...item, ...data };
+          saveDocToFirestore('escalas', updated);
+          return updated;
+        }
+        return item;
+      })
     );
     showToast('success', 'Escala atualizada.');
   };
 
   const deleteEscalaItem = (id: string) => {
     setEscalas((prev) => prev.filter((item) => item.id !== id));
+    removeDocFromFirestore('escalas', id);
     showToast('success', 'Item removido da escala.');
   };
 
   const saveEscalasBulk = (newEscalas: ItemEscala[]) => {
     setEscalas(newEscalas);
+    newEscalas.forEach((item) => saveDocToFirestore('escalas', item));
     showToast('success', 'Escala de Lugares e Horários salva com sucesso!');
   };
 
