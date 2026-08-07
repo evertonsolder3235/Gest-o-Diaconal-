@@ -72,21 +72,9 @@ export const AdminPasswordModal: React.FC = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-semibold text-slate-300">
-                  Senha Administrativa
-                </label>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPassword('Adbrassede##');
-                    if (error) setError(false);
-                  }}
-                  className="text-[11px] font-bold text-blue-400 hover:text-blue-300 hover:underline"
-                >
-                  Usar senha padrão (Adbrassede##)
-                </button>
-              </div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                Senha Administrativa
+              </label>
 
               <div className="relative">
                 <input
@@ -98,7 +86,7 @@ export const AdminPasswordModal: React.FC = () => {
                     setPassword(e.target.value);
                     if (error) setError(false);
                   }}
-                  placeholder="Digite a senha administrativa..."
+                  placeholder="Digite a senha..."
                   className={`w-full bg-slate-950 border rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none transition-all pr-10 ${
                     error
                       ? 'border-rose-500 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 animate-shake'
@@ -114,13 +102,9 @@ export const AdminPasswordModal: React.FC = () => {
                 </button>
               </div>
 
-              {error ? (
+              {error && (
                 <p className="text-xs text-rose-400 font-medium mt-1.5 flex items-center gap-1">
-                  Senha incorreta. A senha padrão do sistema é <strong className="underline font-bold text-rose-300">Adbrassede##</strong>.
-                </p>
-              ) : (
-                <p className="text-[11px] text-slate-400 mt-1.5">
-                  A senha padrão de fábrica é <strong className="text-slate-200">Adbrassede##</strong> (pode ser alterada em Configurações).
+                  Senha incorreta. Tente novamente.
                 </p>
               )}
             </div>

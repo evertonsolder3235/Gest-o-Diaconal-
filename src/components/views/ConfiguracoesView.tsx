@@ -3,7 +3,9 @@ import { useApp } from '../../context/AppContext';
 import { ChurchLogo } from '../ChurchLogo';
 import {
   Settings,
-  Building2
+  Building2,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 export const ConfiguracoesView: React.FC = () => {
@@ -22,6 +24,7 @@ export const ConfiguracoesView: React.FC = () => {
   const [email, setEmail] = useState(config.email);
   const [chavePix, setChavePix] = useState(config.chavePix || '');
   const [senhaAdmin, setSenhaAdmin] = useState(config.senhaAdmin || 'Adbrassede##');
+  const [showSenhaAdmin, setShowSenhaAdmin] = useState(false);
 
   // Keep local fields in sync with context updates/restores
   useEffect(() => {
@@ -179,13 +182,22 @@ export const ConfiguracoesView: React.FC = () => {
               <label className="block text-xs font-semibold text-slate-300 mb-1">
                 Senha Administrativa
               </label>
-              <input
-                type="text"
-                value={senhaAdmin}
-                onChange={(e) => setSenhaAdmin(e.target.value)}
-                placeholder="Ex: Adbrassede##"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-100 focus:outline-none focus:border-blue-500 font-mono text-emerald-400 font-bold"
-              />
+              <div className="relative">
+                <input
+                  type={showSenhaAdmin ? 'text' : 'password'}
+                  value={senhaAdmin}
+                  onChange={(e) => setSenhaAdmin(e.target.value)}
+                  placeholder="Digite a senha..."
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-3.5 pr-10 py-2 text-xs text-slate-100 focus:outline-none focus:border-blue-500 font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowSenhaAdmin(!showSenhaAdmin)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
+                >
+                  {showSenhaAdmin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
           </div>
 

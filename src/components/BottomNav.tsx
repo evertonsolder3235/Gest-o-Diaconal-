@@ -12,13 +12,12 @@ import {
   Megaphone,
   Wallet,
   Settings,
-  LogOut,
   X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export const BottomNav: React.FC = () => {
-  const { activeTab, setActiveTab, logout } = useApp();
+  const { activeTab, setActiveTab } = useApp();
   const [isMoreOpen, setIsMoreOpen] = useState(false);
 
   useRegisterBackHandler(isMoreOpen, () => setIsMoreOpen(false));
@@ -90,17 +89,6 @@ export const BottomNav: React.FC = () => {
                   );
                 })}
               </div>
-
-              <button
-                onClick={() => {
-                  setIsMoreOpen(false);
-                  logout();
-                }}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-rose-950/40 border border-rose-900/50 text-rose-300 text-xs font-bold"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Sair da Conta</span>
-              </button>
             </motion.div>
           </div>
         )}
