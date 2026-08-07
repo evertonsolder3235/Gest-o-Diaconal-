@@ -49,8 +49,6 @@ export const DashboardView: React.FC = () => {
   const [escalaGrupo, setEscalaGrupo] = useState<'Homens' | 'Mulheres'>('Homens');
   const [showFinanceiroValue, setShowFinanceiroValue] = useState<boolean>(false);
 
-  useRegisterBackHandler(escalaModalOpen, () => setEscalaModalOpen(false));
-
   const totalVisitantes = visitantes.length;
   const visitantesNovos = visitantes.filter(v => v.status === 'Novo').length;
 

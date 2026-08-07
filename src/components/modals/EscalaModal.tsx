@@ -265,6 +265,8 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
         )
       );
       showToast('info', 'Item da escala atualizado localmente.');
+      setShowItemForm(false);
+      setEditingItem(null);
     } else {
       // Add new item to localEscalas
       const newItem: ItemEscala = {
@@ -273,11 +275,16 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
         grupo: grupoTarget
       };
       setLocalEscalas((prev) => [...prev, newItem]);
-      showToast('success', 'Nova pessoa adicionada à escala local.');
-    }
+      showToast('success', `${formData.nomePessoa.trim()} adicionado(a) à escala!`);
 
-    setShowItemForm(false);
-    setEditingItem(null);
+      // Keep form open so user can continue adding more people
+      setFormData((prev) => ({
+        ...prev,
+        nomePessoa: '',
+        fotoUrl: '',
+        observacao: ''
+      }));
+    }
   };
 
   const handleOpenAddForm = (selectedDate?: string) => {
@@ -291,6 +298,7 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
         observacao: '',
         fotoUrl: ''
       });
+      setViewMode('mensal');
       setShowItemForm(true);
     };
 
@@ -903,9 +911,9 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
 
         {/* SUB-MODAL: FORM FOR ADDING / EDITING ESCALADO */}
         {showItemForm && (
-          <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-5 shadow-2xl space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="fixed inset-0 z-[80] flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto">
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-4 sm:p-5 shadow-2xl flex flex-col my-auto max-h-[90vh] overflow-hidden">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3 shrink-0">
                 <h4 className="text-sm font-extrabold text-white flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-amber-400" />
                   <span>
@@ -913,14 +921,16 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
                   </span>
                 </h4>
                 <button
+                  type="button"
                   onClick={() => setShowItemForm(false)}
-                  className="text-slate-400 hover:text-white"
+                  className="text-slate-400 hover:text-white p-1"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <form onSubmit={handleSaveForm} className="space-y-3">
+              <form onSubmit={handleSaveForm} className="flex flex-col flex-1 min-h-0 pt-3">
+                <div className="overflow-y-auto pr-1 space-y-3 flex-1">
                 {/* Data */}
                 <div>
                   <label className="block text-xs font-bold text-slate-300 mb-1">
@@ -1132,8 +1142,49 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
                   />
                 </div>
 
+                {/* List of people already added for this date */}
+                {!editingItem && (() => {
+                  const itemsOnDate = localEscalas.filter(
+                    (i) => i.grupo === grupoTarget && i.data === formData.data
+                  );
+                  if (itemsOnDate.length === 0) return null;
+                  return (
+                    <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 space-y-1.5 mt-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-extrabold text-slate-300">
+                          Já escalados para {formData.data.split('-').reverse().join('/')}:
+                        </span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-bold">
+                          {itemsOnDate.length} {itemsOnDate.length === 1 ? 'pessoa' : 'pessoas'}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-1 max-h-20 overflow-y-auto pr-1">
+                        {itemsOnDate.map((item) => (
+                          <div
+                            key={item.id}
+                            className={`text-[9px] font-bold px-2 py-0.5 rounded-lg border flex items-center gap-1 ${getPlaceBadgeColor(
+                              item.lugar
+                            )}`}
+                          >
+                            <span>{item.nomePessoa.split(' ')[0]} ({item.lugar})</span>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteItemLocal(item.id)}
+                              className="ml-0.5 text-slate-400 hover:text-rose-400 p-0.5"
+                              title="Remover este item"
+                            >
+                              <Trash2 className="w-2.5 h-2.5" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
+                </div>
+
                 {/* Buttons */}
-                <div className="pt-2 flex items-center justify-between gap-2 border-t border-slate-800">
+                <div className="pt-3 mt-3 flex items-center justify-between gap-2 border-t border-slate-800 shrink-0">
                   {editingItem ? (
                     <button
                       type="button"
@@ -1156,7 +1207,7 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
                       onClick={() => setShowItemForm(false)}
                       className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-colors"
                     >
-                      Cancelar
+                      {editingItem ? 'Cancelar' : 'Concluir'}
                     </button>
                     <button
                       type="submit"
@@ -1166,7 +1217,7 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
                           : 'bg-blue-600 hover:bg-blue-500 shadow-blue-900/30'
                       }`}
                     >
-                      {editingItem ? 'Salvar Alterações' : 'Adicionar à Escala'}
+                      {editingItem ? 'Salvar Alterações' : '+ Adicionar à Escala'}
                     </button>
                   </div>
                 </div>

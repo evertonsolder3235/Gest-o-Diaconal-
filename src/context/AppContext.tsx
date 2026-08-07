@@ -315,7 +315,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const action = adminAuthModal.onSuccess;
       setAdminAuthModal({ isOpen: false });
       if (action) {
-        action();
+        setTimeout(() => {
+          action();
+        }, 100);
       }
       return true;
     }
