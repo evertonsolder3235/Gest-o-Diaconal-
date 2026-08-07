@@ -135,7 +135,7 @@ export const VisitantesView: React.FC = () => {
           setSelectedIds([]);
         }
       );
-    }, 'Acesso Restrito: Excluir Visitantes Selecionados', true);
+    }, 'Acesso Restrito: Excluir Visitantes Selecionados');
   };
 
   // WhatsApp Helper Message

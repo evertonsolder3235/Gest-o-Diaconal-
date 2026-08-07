@@ -525,78 +525,92 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     // 2. Visitantes subscription
     const unsubVisitantes = onSnapshot(collection(db, 'visitantes'), (snapshot) => {
-      if (!snapshot.empty) {
-        const list: Visitante[] = [];
-        snapshot.forEach((d) => list.push({ id: d.id, ...d.data() } as Visitante));
-        setVisitantes(list);
-      } else {
+      const list: Visitante[] = [];
+      snapshot.forEach((d) => list.push({ id: d.id, ...d.data() } as Visitante));
+      if (snapshot.empty && !localStorage.getItem('fs_seeded_visitantes')) {
+        localStorage.setItem('fs_seeded_visitantes', 'true');
         initialVisitantes.forEach((item) => saveDocToFirestore('visitantes', item));
+      } else {
+        localStorage.setItem('fs_seeded_visitantes', 'true');
+        setVisitantes(list);
       }
     });
 
     // 3. Aniversariantes subscription
     const unsubAniversariantes = onSnapshot(collection(db, 'aniversariantes'), (snapshot) => {
-      if (!snapshot.empty) {
-        const list: Aniversariante[] = [];
-        snapshot.forEach((d) => list.push({ id: d.id, ...d.data() } as Aniversariante));
-        setAniversariantes(list);
-      } else {
+      const list: Aniversariante[] = [];
+      snapshot.forEach((d) => list.push({ id: d.id, ...d.data() } as Aniversariante));
+      if (snapshot.empty && !localStorage.getItem('fs_seeded_aniversariantes')) {
+        localStorage.setItem('fs_seeded_aniversariantes', 'true');
         initialAniversariantes.forEach((item) => saveDocToFirestore('aniversariantes', item));
+      } else {
+        localStorage.setItem('fs_seeded_aniversariantes', 'true');
+        setAniversariantes(list);
       }
     });
 
     // 4. Obreiros subscription
     const unsubObreiros = onSnapshot(collection(db, 'obreiros'), (snapshot) => {
-      if (!snapshot.empty) {
-        const list: Obreiro[] = [];
-        snapshot.forEach((d) => list.push({ id: d.id, ...d.data() } as Obreiro));
-        setObreiros(list);
-      } else {
+      const list: Obreiro[] = [];
+      snapshot.forEach((d) => list.push({ id: d.id, ...d.data() } as Obreiro));
+      if (snapshot.empty && !localStorage.getItem('fs_seeded_obreiros')) {
+        localStorage.setItem('fs_seeded_obreiros', 'true');
         initialObreiros.forEach((item) => saveDocToFirestore('obreiros', item));
+      } else {
+        localStorage.setItem('fs_seeded_obreiros', 'true');
+        setObreiros(list);
       }
     });
 
     // 5. Pedidos subscription
     const unsubPedidos = onSnapshot(collection(db, 'pedidos'), (snapshot) => {
-      if (!snapshot.empty) {
-        const list: PedidoOracao[] = [];
-        snapshot.forEach((d) => list.push({ id: d.id, ...d.data() } as PedidoOracao));
-        setPedidos(list);
-      } else {
+      const list: PedidoOracao[] = [];
+      snapshot.forEach((d) => list.push({ id: d.id, ...d.data() } as PedidoOracao));
+      if (snapshot.empty && !localStorage.getItem('fs_seeded_pedidos')) {
+        localStorage.setItem('fs_seeded_pedidos', 'true');
         initialPedidosOracao.forEach((item) => saveDocToFirestore('pedidos', item));
+      } else {
+        localStorage.setItem('fs_seeded_pedidos', 'true');
+        setPedidos(list);
       }
     });
 
     // 6. Avisos subscription
     const unsubAvisos = onSnapshot(collection(db, 'avisos'), (snapshot) => {
-      if (!snapshot.empty) {
-        const list: Aviso[] = [];
-        snapshot.forEach((d) => list.push({ id: d.id, ...d.data() } as Aviso));
-        setAvisos(list);
-      } else {
+      const list: Aviso[] = [];
+      snapshot.forEach((d) => list.push({ id: d.id, ...d.data() } as Aviso));
+      if (snapshot.empty && !localStorage.getItem('fs_seeded_avisos')) {
+        localStorage.setItem('fs_seeded_avisos', 'true');
         initialAvisos.forEach((item) => saveDocToFirestore('avisos', item));
+      } else {
+        localStorage.setItem('fs_seeded_avisos', 'true');
+        setAvisos(list);
       }
     });
 
     // 7. Contribuicoes subscription
     const unsubContribuicoes = onSnapshot(collection(db, 'contribuicoes'), (snapshot) => {
-      if (!snapshot.empty) {
-        const list: ContribuicaoFinanceira[] = [];
-        snapshot.forEach((d) => list.push({ id: d.id, ...d.data() } as ContribuicaoFinanceira));
-        setContribuicoes(list);
-      } else {
+      const list: ContribuicaoFinanceira[] = [];
+      snapshot.forEach((d) => list.push({ id: d.id, ...d.data() } as ContribuicaoFinanceira));
+      if (snapshot.empty && !localStorage.getItem('fs_seeded_contribuicoes')) {
+        localStorage.setItem('fs_seeded_contribuicoes', 'true');
         initialContribuicoes.forEach((item) => saveDocToFirestore('contribuicoes', item));
+      } else {
+        localStorage.setItem('fs_seeded_contribuicoes', 'true');
+        setContribuicoes(list);
       }
     });
 
     // 8. Escalas subscription
     const unsubEscalas = onSnapshot(collection(db, 'escalas'), (snapshot) => {
-      if (!snapshot.empty) {
-        const list: ItemEscala[] = [];
-        snapshot.forEach((d) => list.push({ id: d.id, ...d.data() } as ItemEscala));
-        setEscalas(list);
-      } else {
+      const list: ItemEscala[] = [];
+      snapshot.forEach((d) => list.push({ id: d.id, ...d.data() } as ItemEscala));
+      if (snapshot.empty && !localStorage.getItem('fs_seeded_escalas')) {
+        localStorage.setItem('fs_seeded_escalas', 'true');
         initialEscalas.forEach((item) => saveDocToFirestore('escalas', item));
+      } else {
+        localStorage.setItem('fs_seeded_escalas', 'true');
+        setEscalas(list);
       }
     });
 

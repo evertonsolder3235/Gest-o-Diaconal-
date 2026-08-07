@@ -163,7 +163,7 @@ export const AniversariantesView: React.FC = () => {
           setSelectedIds([]);
         }
       );
-    }, 'Acesso Restrito: Excluir Comemorações Selecionadas', true);
+    }, 'Acesso Restrito: Excluir Comemorações Selecionadas');
   };
 
   const getWhatsAppMsgLink = (item: Aniversariante) => {

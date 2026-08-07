@@ -235,7 +235,7 @@ export const ObreirosView: React.FC = () => {
           setSelectedIds([]);
         }
       );
-    }, 'Acesso Restrito: Excluir Obreiros', true);
+    }, 'Acesso Restrito: Excluir Obreiros');
   };
 
   const filteredList = obreiros.filter((item) => {

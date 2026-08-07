@@ -177,7 +177,7 @@ export const FinanceiroView: React.FC = () => {
           setSelectedIds([]);
         }
       );
-    }, 'Acesso Restrito: Excluir Lançamentos Financeiros', true);
+    }, 'Acesso Restrito: Excluir Lançamentos Financeiros');
   };
 
   // Calculations for Summary
