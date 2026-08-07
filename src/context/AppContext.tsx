@@ -215,10 +215,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed && typeof parsed === 'object') {
-          if (parsed.nomeIgreja === 'Igreja Evangélica Central') {
-            parsed.nomeIgreja = 'IGREJA ADBRAS SEDE';
-          }
-          return { ...initialConfig, ...parsed };
+          return {
+            nomeIgreja: parsed.nomeIgreja || initialConfig.nomeIgreja,
+            subtitulo: parsed.subtitulo ?? '',
+            pastorPresidente: parsed.pastorPresidente ?? '',
+            endereco: parsed.endereco ?? '',
+            telefone: parsed.telefone ?? '',
+            email: parsed.email ?? '',
+            chavePix: parsed.chavePix ?? '',
+            senhaAdmin: parsed.senhaAdmin || initialConfig.senhaAdmin
+          };
         }
       }
     } catch (e) {

@@ -5,25 +5,30 @@ import {
   Settings,
   Building2,
   Eye,
-  EyeOff
+  EyeOff,
+  Lock,
+  Unlock,
+  ShieldAlert
 } from 'lucide-react';
 
 export const ConfiguracoesView: React.FC = () => {
   const {
     config,
     updateConfig,
-    requestAdminAuth
+    isAdminUnlocked,
+    requestAdminAuth,
+    lockAdmin
   } = useApp();
 
   // Church config edit state
   const [nomeIgreja, setNomeIgreja] = useState(config.nomeIgreja);
-  const [subtitulo, setSubtitulo] = useState(config.subtitulo);
-  const [pastorPresidente, setPastorPresidente] = useState(config.pastorPresidente);
-  const [endereco, setEndereco] = useState(config.endereco);
-  const [telefone, setTelefone] = useState(config.telefone);
-  const [email, setEmail] = useState(config.email);
+  const [subtitulo, setSubtitulo] = useState(config.subtitulo || '');
+  const [pastorPresidente, setPastorPresidente] = useState(config.pastorPresidente || '');
+  const [endereco, setEndereco] = useState(config.endereco || '');
+  const [telefone, setTelefone] = useState(config.telefone || '');
+  const [email, setEmail] = useState(config.email || '');
   const [chavePix, setChavePix] = useState(config.chavePix || '');
-  const [senhaAdmin, setSenhaAdmin] = useState(config.senhaAdmin || 'Adbrassede##');
+  const [senhaAdmin, setSenhaAdmin] = useState(config.senhaAdmin || '');
   const [showSenhaAdmin, setShowSenhaAdmin] = useState(false);
 
   // Keep local fields in sync with context updates/restores
@@ -35,7 +40,7 @@ export const ConfiguracoesView: React.FC = () => {
     setTelefone(config.telefone || '');
     setEmail(config.email || '');
     setChavePix(config.chavePix || '');
-    setSenhaAdmin(config.senhaAdmin || 'Adbrassede##');
+    setSenhaAdmin(config.senhaAdmin || '');
   }, [config]);
 
   const handleSaveConfig = (e: React.FormEvent) => {
@@ -54,10 +59,53 @@ export const ConfiguracoesView: React.FC = () => {
     }, 'Salvar Configurações da Igreja');
   };
 
+  // If admin is NOT unlocked, show locked state card
+  if (!isAdminUnlocked) {
+    return (
+      <div className="space-y-6 pb-12 max-w-4xl mx-auto">
+        {/* Page Title */}
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-xl bg-blue-600/20 text-blue-400">
+              <Settings className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-xl font-extrabold text-slate-100">Configurações</h2>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Identidade e dados oficiais da igreja
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Locked Access Card */}
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 sm:p-12 text-center flex flex-col items-center justify-center space-y-4 shadow-xl">
+          <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-inner">
+            <ShieldAlert className="w-8 h-8" />
+          </div>
+          <div className="max-w-md space-y-2">
+            <h3 className="text-lg font-black text-slate-100">Painel de Configurações Restrito</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Esta seção contém dados confidenciais da igreja, chaves de pagamento e definição da senha mestra do sistema. Digite a senha administrativa para liberar o acesso.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => requestAdminAuth(() => {}, 'Acesso Restrito: Configurações do Sistema')}
+            className="mt-2 px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs shadow-lg shadow-amber-950/50 flex items-center gap-2 transition-all transform active:scale-95"
+          >
+            <Lock className="w-4 h-4" />
+            <span>Desbloquear Configurações</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 pb-12 max-w-4xl mx-auto">
-      {/* Page Title */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+      {/* Page Title & Admin Unlocked Banner */}
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <div className="p-2 rounded-xl bg-blue-600/20 text-blue-400">
             <Settings className="w-5 h-5" />
@@ -68,6 +116,22 @@ export const ConfiguracoesView: React.FC = () => {
               Identidade e dados oficiais da igreja
             </p>
           </div>
+        </div>
+
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <div className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center gap-1.5">
+            <Unlock className="w-3.5 h-3.5" />
+            <span>Acesso Liberado</span>
+          </div>
+          <button
+            type="button"
+            onClick={lockAdmin}
+            className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold flex items-center gap-1.5 transition-colors"
+            title="Bloquear acesso de administrador"
+          >
+            <Lock className="w-3.5 h-3.5 text-slate-400" />
+            <span>Bloquear</span>
+          </button>
         </div>
       </div>
 
@@ -214,3 +278,4 @@ export const ConfiguracoesView: React.FC = () => {
     </div>
   );
 };
+

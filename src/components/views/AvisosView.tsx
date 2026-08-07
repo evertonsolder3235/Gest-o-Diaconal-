@@ -50,7 +50,7 @@ export const AvisosView: React.FC = () => {
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [data, setData] = useState(new Date().toISOString().slice(0, 10));
-  const [horario, setHorario] = useState('19:00');
+  const [horario, setHorario] = useState('');
   const [fixado, setFixado] = useState(false);
 
   const openAddModal = () => {
@@ -59,7 +59,7 @@ export const AvisosView: React.FC = () => {
       setTitulo('');
       setDescricao('');
       setData(new Date().toISOString().slice(0, 10));
-      setHorario('19:00');
+      setHorario('');
       setFixado(false);
       setIsModalOpen(true);
     }, 'Publicar Novo Aviso');

@@ -62,12 +62,12 @@ export const ObreirosView: React.FC = () => {
   // Form State matching prompt requirements exactly
   const [nomeCompleto, setNomeCompleto] = useState('');
   const [telefone, setTelefone] = useState('');
-  const [dataNascimento, setDataNascimento] = useState('1990-01-01');
+  const [dataNascimento, setDataNascimento] = useState('');
   const [departamento, setDepartamento] = useState<DepartamentoChurch>('Diaconia');
   const [rua, setRua] = useState('');
   const [numero, setNumero] = useState('');
   const [bairro, setBairro] = useState('');
-  const [cargoMinistério, setCargoMinistério] = useState('Diácono');
+  const [cargoMinistério, setCargoMinistério] = useState('');
   const [status, setStatus] = useState<ObreiroStatus>('Ativo');
   const [observacao, setObservacao] = useState('');
   const [fotoUrl, setFotoUrl] = useState('');
@@ -129,12 +129,12 @@ export const ObreirosView: React.FC = () => {
       setEditingItem(null);
       setNomeCompleto('');
       setTelefone('');
-      setDataNascimento('1990-01-01');
+      setDataNascimento('');
       setDepartamento('Diaconia');
       setRua('');
       setNumero('');
       setBairro('');
-      setCargoMinistério('Diácono');
+      setCargoMinistério('');
       setStatus('Ativo');
       setObservacao('');
       setFotoUrl('');
@@ -646,10 +646,9 @@ export const ObreirosView: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">Data de Nascimento *</label>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">Data de Nascimento</label>
                     <input
                       type="date"
-                      required
                       value={dataNascimento}
                       onChange={(e) => setDataNascimento(e.target.value)}
                       className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-100 focus:outline-none focus:border-emerald-500"

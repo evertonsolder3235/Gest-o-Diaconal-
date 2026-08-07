@@ -1015,10 +1015,9 @@ export const EscalaModal: React.FC<EscalaModalProps> = ({
                   </label>
                   {obreiros.length > 0 && (
                     <select
+                      value={formData.nomePessoa || ''}
                       onChange={(e) => {
-                        if (e.target.value) {
-                          setFormData({ ...formData, nomePessoa: e.target.value });
-                        }
+                        setFormData({ ...formData, nomePessoa: e.target.value });
                       }}
                       className={`w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 mb-2 focus:outline-none ${
                         isMulheres ? 'focus:border-pink-500' : 'focus:border-blue-500'
