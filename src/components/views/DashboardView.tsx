@@ -23,9 +23,7 @@ import {
   Plus,
   Check,
   CheckCheck,
-  User,
-  Eye,
-  EyeOff
+  User
 } from 'lucide-react';
 
 export const DashboardView: React.FC = () => {
@@ -47,7 +45,6 @@ export const DashboardView: React.FC = () => {
 
   const [escalaModalOpen, setEscalaModalOpen] = useState(false);
   const [escalaGrupo, setEscalaGrupo] = useState<'Homens' | 'Mulheres'>('Homens');
-  const [showFinanceiroValue, setShowFinanceiroValue] = useState<boolean>(false);
 
   const totalVisitantes = visitantes.length;
   const visitantesNovos = visitantes.filter(v => v.status === 'Novo').length;
@@ -446,28 +443,13 @@ export const DashboardView: React.FC = () => {
               )}
             </div>
             <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowFinanceiroValue((prev) => !prev);
-                }}
-                className="p-1 text-slate-400 hover:text-emerald-400 hover:bg-slate-800 rounded-md transition-colors"
-                title={showFinanceiroValue ? 'Ocultar valor' : 'Mostrar valor'}
-              >
-                {showFinanceiroValue ? (
-                  <Eye className="w-3.5 h-3.5 text-emerald-400" />
-                ) : (
-                  <EyeOff className="w-3.5 h-3.5 text-slate-500" />
-                )}
-              </button>
               <Wallet className="w-4 h-4 text-emerald-400" />
             </div>
           </div>
           <div className="mt-2 flex items-end justify-between gap-1">
             <div>
               <div className="text-sm font-extrabold text-emerald-400 tracking-tight truncate">
-                {showFinanceiroValue ? formatBRL(totalFinanceiro) : 'R$ •••,••'}
+                R$ •••,••
               </div>
               <span className="text-[10px] text-slate-500 block truncate">
                 {contribuicoes.length} lançamentos

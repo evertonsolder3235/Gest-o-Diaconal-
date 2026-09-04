@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useRegisterBackHandler } from '../../hooks/useBackButton';
 import { ContribuicaoFinanceira, TipoContribuicao } from '../../types';
@@ -18,7 +18,10 @@ import {
   TrendingUp,
   Image as ImageIcon,
   CheckCircle,
-  Upload
+  Upload,
+  Lock,
+  Unlock,
+  ShieldAlert
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -42,7 +45,9 @@ export const FinanceiroView: React.FC = () => {
     askConfirmDelete,
     searchQuery,
     setSearchQuery,
-    requestAdminAuth
+    requestAdminAuth,
+    isAdminUnlocked,
+    lockAdmin
   } = useApp();
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -50,6 +55,13 @@ export const FinanceiroView: React.FC = () => {
   const [editingItem, setEditingItem] = useState<ContribuicaoFinanceira | null>(null);
   const [viewingProofItem, setViewingProofItem] = useState<ContribuicaoFinanceira | null>(null);
   const [showValue, setShowValue] = useState<boolean>(false);
+
+  // Solicita autenticação de senha ao entrar na visualização se não estiver desbloqueado
+  useEffect(() => {
+    if (!isAdminUnlocked) {
+      requestAdminAuth(() => {}, 'Acesso Restrito: Módulo Financeiro', true);
+    }
+  }, []);
 
   useRegisterBackHandler(isModalOpen || !!viewingProofItem, () => {
     setIsModalOpen(false);
@@ -190,6 +202,49 @@ export const FinanceiroView: React.FC = () => {
     );
   });
 
+  // If admin is NOT unlocked, show locked state card
+  if (!isAdminUnlocked) {
+    return (
+      <div className="space-y-6 pb-12 max-w-4xl mx-auto">
+        {/* Header Bar */}
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-xl bg-emerald-600/20 text-emerald-400">
+              <Wallet className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-xl font-extrabold text-slate-100">Módulo Financeiro & Contribuições</h2>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Registro de dízimos, ofertas, missões, obras e anexos de comprovantes
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Locked Access Card */}
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 sm:p-12 text-center flex flex-col items-center justify-center space-y-4 shadow-xl">
+          <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-inner">
+            <ShieldAlert className="w-8 h-8" />
+          </div>
+          <div className="max-w-md space-y-2">
+            <h3 className="text-lg font-black text-slate-100">Visualização Financeira Restrita</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              O acesso aos lançamentos financeiros, arrecadação total, comprovantes e histórico de contribuições é restrito. Digite a senha administrativa para liberar o acesso.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => requestAdminAuth(() => {}, 'Acesso Restrito: Módulo Financeiro', true)}
+            className="mt-2 px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-black text-xs shadow-lg shadow-emerald-950/50 flex items-center gap-2 transition-all transform active:scale-95 cursor-pointer"
+          >
+            <Lock className="w-4 h-4" />
+            <span>Desbloquear Visualização Financeira</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 pb-12">
       {/* Header Bar */}
@@ -206,13 +261,28 @@ export const FinanceiroView: React.FC = () => {
           </p>
         </div>
 
-        <button
-          onClick={openAddModal}
-          className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-900/30 transition-all shrink-0"
-        >
-          <PlusCircle className="w-4 h-4" />
-          <span>Registrar Contribuição</span>
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center gap-1.5">
+            <Unlock className="w-3.5 h-3.5" />
+            <span>Acesso Liberado</span>
+          </div>
+          <button
+            type="button"
+            onClick={lockAdmin}
+            className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+            title="Bloquear acesso financeiro"
+          >
+            <Lock className="w-3.5 h-3.5 text-slate-400" />
+            <span>Bloquear</span>
+          </button>
+          <button
+            onClick={openAddModal}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-900/30 transition-all shrink-0 cursor-pointer"
+          >
+            <PlusCircle className="w-4 h-4" />
+            <span>Registrar Contribuição</span>
+          </button>
+        </div>
       </div>
 
       {/* Resumo Financeiro Card */}

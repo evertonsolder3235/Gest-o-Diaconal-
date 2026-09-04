@@ -129,7 +129,7 @@ export const PedidosOracaoView: React.FC = () => {
           setSelectedIds([]);
         }
       );
-    }, 'Acesso Restrito: Excluir Pedidos Selecionados');
+    }, 'Acesso Restrito: Excluir Pedidos Selecionados', true);
   };
 
   const filteredList = pedidos.filter((item) => {

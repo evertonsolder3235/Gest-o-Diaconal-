@@ -140,7 +140,7 @@ export const AvisosView: React.FC = () => {
           setSelectedIds([]);
         }
       );
-    }, 'Acesso Restrito: Excluir Avisos');
+    }, 'Acesso Restrito: Excluir Avisos', true);
   };
 
   const filteredList = avisos.filter((item) => {

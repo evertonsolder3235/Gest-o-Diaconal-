@@ -56,7 +56,7 @@ export const ConfiguracoesView: React.FC = () => {
         chavePix,
         senhaAdmin
       });
-    }, 'Salvar Configurações da Igreja');
+    }, 'Salvar Configurações da Igreja', true);
   };
 
   // If admin is NOT unlocked, show locked state card
@@ -91,7 +91,7 @@ export const ConfiguracoesView: React.FC = () => {
           </div>
           <button
             type="button"
-            onClick={() => requestAdminAuth(() => {}, 'Acesso Restrito: Configurações do Sistema')}
+            onClick={() => requestAdminAuth(() => {}, 'Acesso Restrito: Configurações do Sistema', true)}
             className="mt-2 px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs shadow-lg shadow-amber-950/50 flex items-center gap-2 transition-all transform active:scale-95"
           >
             <Lock className="w-4 h-4" />
